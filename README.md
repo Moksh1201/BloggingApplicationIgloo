@@ -1,1 +1,1 @@
-# firebase-blog-posts-main
+# BloggingApplicationPart1-main
