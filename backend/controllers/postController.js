@@ -356,7 +356,6 @@ const createPost = async (req, res, next) => {
   }
 };
 
-
 const updatePost = async (req, res, next) => {
   try {
     const { postId } = req.params;

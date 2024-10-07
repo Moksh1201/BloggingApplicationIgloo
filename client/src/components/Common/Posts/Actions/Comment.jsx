@@ -1,4 +1,3 @@
-
 //comments count to be added
 import React, { useEffect, useState } from "react";
 import { FaRegComment } from "react-icons/fa";

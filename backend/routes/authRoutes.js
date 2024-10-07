@@ -19,7 +19,7 @@ router.post('/register', validateRegister, async (req, res) => {
 router.get('/me', authenticate, async (req, res) => { 
   console.log("Fetching profile for user ID:", req.user.id); 
   try {
-    const userId = req.user.id; // Use req.user.id here
+    const userId = req.user.id; 
     const profile = await profileController.getProfile(userId); 
     if (profile) {
       res.status(200).json(profile);
@@ -32,10 +32,15 @@ router.get('/me', authenticate, async (req, res) => {
 });
 
 // Route to log out a user
+// Route to log out a user
 router.post('/logout', authenticate, (req, res) => { 
-  localStorage.removeItem('authToken');
+  // Invalidate the session or token here
+  req.logout(); // If you are using express-session
+  // Optionally, blacklist the token or remove it from your database if using JWTs
+
   res.status(200).json({ message: 'Logout successful' });
 });
+
 
 // Route to log in a user
 router.post('/login', validateLogin, async (req, res) => {

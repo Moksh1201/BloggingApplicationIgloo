@@ -1,11 +1,12 @@
 // import React, { useState } from "react";
+// import axiosInstance from "../../../axiosInstance";
 // import { Blog } from "../../../Context/Context";
 // import moment from "moment";
 // import { BiDotsHorizontalRounded } from "react-icons/bi";
 // import DropDown from "../../../utils/DropDown";
 // import { toast } from "react-toastify";
 
-// const Comment = ({ item: comment, postId, handleCommentDelete }) => {
+// const Comment = ({ item: comment, postId, handleCommentDelete, refreshComments }) => {
 //   const { allUsers, currentUser } = Blog();
 //   const [drop, setDrop] = useState(false);
 //   const [isEdit, setIsEdit] = useState(false);
@@ -16,48 +17,52 @@
 //   const getUserData = allUsers.find((user) => user.id === userId);
 
 //   const removeComment = async () => {
+//     if (!comment._id) {
+//       console.error("Comment ID is missing.");
+//       toast.error("Comment ID is missing.");
+//       return;
+//     }
+
 //     try {
-//       await fetch(`/api/posts/${postId}/comments/${comment.id}`, {
+//       console.log("Deleting comment with ID:", comment._id);
+//       await fetch(`/api/posts/${postId}/comments/${comment._id}`, {
 //         method: 'DELETE',
-//         headers: {
-//           'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token if authentication is used
-//         }
+//         headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
 //       });
+
 //       setDrop(false);
 //       toast.success("Comment has been removed");
-//       handleCommentDelete(comment.id); // Call the parent handler to update the list
+//       handleCommentDelete(comment._id); // Update parent component
+//       refreshComments(); // Refresh comments without page reload
 //     } catch (error) {
-//       toast.error(error.message);
+//       console.error("Error deleting comment:", error);
+//       toast.error("Failed to delete comment.");
 //     }
 //   };
 
 //   const editCommentText = () => {
 //     setIsEdit(true);
 //     setDrop(false);
-//     setEditComment(commentText || ""); // Default to empty string if commentText is undefined
+//     setEditComment(commentText || ""); // Set the original comment text for editing
 //   };
 
 //   const handleEdit = async () => {
 //     setLoading(true);
 //     try {
-//       await fetch(`/api/posts/${postId}/comments/${comment.id}`, {
-//         method: 'PUT',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include token if authentication is used
-//         },
-//         body: JSON.stringify({
-//           commentText: editComment,
-//           created: Date.now(),
-//           userId: currentUser?.id
-//         })
+//       const response = await axiosInstance.put(`/posts/${postId}/comments/${comment._id}`, {
+//         content: editComment
+//       }, {
+//         headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
 //       });
-//       setEditComment("");
-//       setIsEdit(false);
-//       setDrop(false);
-//       toast.success("Comment has been updated");
+
+//       if (response.status === 200) {
+//         setIsEdit(false);
+//         toast.success("Comment updated successfully");
+//         refreshComments(); // Refresh comments immediately after update
+//       }
 //     } catch (error) {
-//       toast.error(error.message);
+//       console.error("Error updating comment:", error);
+//       toast.error("Failed to update comment");
 //     } finally {
 //       setLoading(false);
 //     }
@@ -85,13 +90,15 @@
 //                   <>
 //                     <button
 //                       onClick={() => setDrop(!drop)}
-//                       className="text-2xl hover:opacity-70">
+//                       className="text-2xl hover:opacity-70"
+//                     >
 //                       <BiDotsHorizontalRounded />
 //                     </button>
 //                     <DropDown
 //                       showDrop={drop}
 //                       setShowDrop={setDrop}
-//                       size="w-[10rem]">
+//                       size="w-[10rem]"
+//                     >
 //                       <button
 //                         onClick={editCommentText}
 //                         className="hover:bg-gray-200 px-2 py-1 text-sm"
@@ -122,7 +129,7 @@
 //           <div className="flex items-center justify-end gap-4 mt-2">
 //             <button
 //               onClick={() => {
-//                 setEditComment("");
+//                 setEditComment(commentText || ""); // Reset to original comment content
 //                 setIsEdit(false);
 //               }}
 //               className="text-sm"
@@ -151,7 +158,7 @@ import { BiDotsHorizontalRounded } from "react-icons/bi";
 import DropDown from "../../../utils/DropDown";
 import { toast } from "react-toastify";
 
-const Comment = ({ item: comment, postId, handleCommentDelete, refreshComments }) => {
+const Comment = ({ item: comment, postId, handleCommentDelete, refreshComments, updateComment }) => {
   const { allUsers, currentUser } = Blog();
   const [drop, setDrop] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -169,17 +176,13 @@ const Comment = ({ item: comment, postId, handleCommentDelete, refreshComments }
     }
 
     try {
-      console.log("Deleting comment with ID:", comment._id); // Debug log
-      await fetch(`/api/posts/${postId}/comments/${comment._id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
+      await axiosInstance.delete(`/posts/${postId}/comments/${comment._id}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
 
       setDrop(false);
       toast.success("Comment has been removed");
-      handleCommentDelete(comment._id); // Notify parent to remove specific comment
+      handleCommentDelete(comment._id); // Update parent component
     } catch (error) {
       console.error("Error deleting comment:", error);
       toast.error("Failed to delete comment.");
@@ -189,7 +192,7 @@ const Comment = ({ item: comment, postId, handleCommentDelete, refreshComments }
   const editCommentText = () => {
     setIsEdit(true);
     setDrop(false);
-    setEditComment(commentText || ""); // Default to empty string if commentText is undefined
+    setEditComment(commentText || ""); // Set the original comment text for editing
   };
 
   const handleEdit = async () => {
@@ -203,9 +206,8 @@ const Comment = ({ item: comment, postId, handleCommentDelete, refreshComments }
 
       if (response.status === 200) {
         setIsEdit(false);
-        setEditComment(response.data.content);
         toast.success("Comment updated successfully");
-        
+        updateComment(comment._id, editComment); // Update local state with the new comment
       }
     } catch (error) {
       console.error("Error updating comment:", error);

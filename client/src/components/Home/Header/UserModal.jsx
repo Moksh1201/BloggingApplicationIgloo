@@ -46,8 +46,16 @@ const UserModal = ({ setModal }) => {
         credentials: "include",
       });
 
+      // Remove token from local storage
+      localStorage.removeItem("authToken");
+
+      // Clear the current user context
       setCurrentUser(null);
+
+      // Redirect to login page
       navigate("/login", { replace: true });
+
+      // Show success message
       toast.success("User has been logged out");
     } catch (error) {
       console.error("Logout error:", error);

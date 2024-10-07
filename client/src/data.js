@@ -9,7 +9,7 @@ export const nav = [
   },
   {
     title: "Write",
-    path: "/",
+    path: "/login",
   },
 ];
 

@@ -26,5 +26,33 @@
     "email": "testing123@gmail.com",
     "password": "$2b$10$mo4w08yyWDDX7kHQLKhM.Oneci8PeS/oUTITnm775zooCB4yaWJX6",
     "isAdmin": false
+  },
+  {
+    "id": "8dac0298-753a-49d2-838f-91cef58729e9",
+    "username": "KARTIKXYZ",
+    "email": "KARTIKXYZ@gmail.com",
+    "password": "$2b$10$.M1lHrKp7JlETRh8Job6wO2gMDuAwa9PaYVjBAG3tVrPsHf9OHDLi",
+    "isAdmin": false
+  },
+  {
+    "id": "ce6b4c58-3494-4662-9d51-15cb57ef40ff",
+    "username": "Piyush",
+    "email": "Piyush@gmail.com",
+    "password": "$2b$10$CCXS4IqhcNq0Q.mk3LHiZuefAS9ITOrsicecu4FEA.yUgER/twLw2",
+    "isAdmin": false
+  },
+  {
+    "id": "efbd94fc-9644-4bc3-a171-2a9a69bc0248",
+    "username": "madaanmoksh",
+    "email": "madaan@gamil.com",
+    "password": "$2b$10$XPOQbiyeulQVCib0XuHTF.43.3T.7gqpt2ZKGc14UzKG0pz8Jo40C",
+    "isAdmin": false
+  },
+  {
+    "id": "fb605640-ec09-4b80-8570-33ab9979e8e9",
+    "username": "madaanmoksh",
+    "email": "moksh4814.be22@chitkara.edu.in",
+    "password": "$2b$10$0LfKRy9B7Rgnv3G0tY7/puQbPOpXgQ1Oi5CnBqzP4CU6oLh7T/Kni",
+    "isAdmin": false
   }
 ]

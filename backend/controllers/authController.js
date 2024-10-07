@@ -3,7 +3,6 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
 const secretKey = 'vG7yL*4s&uVxwRmd@M!z9^Tj0Q$e6H5'; 
 
 const usersFilePath = path.join(__dirname, '../data/users.json');
@@ -54,8 +53,6 @@ const registerUser = async (userData) => {
     writeDataToFile(filePath, users);
 
     console.log('User registered:', newUser);
-    
-    // Login the user to generate a token
     const { token } = await loginUser(email, password);
 
     return { user: newUser, token };
@@ -65,33 +62,27 @@ const registerUser = async (userData) => {
   }
 };
 
-
-// Authenticate a user (can be done for both regular and admin users)
 const loginUser = async (email, password) => {
-  // Check both the regular users and admin users files
+  
   let users = readDataFromFile(usersFilePath);
   let user = users.find(u => u.email === email);
 
-  // If not found in regular users, check in admin users
   if (!user) {
     users = readDataFromFile(adminFilePath);
     user = users.find(u => u.email === email);
   }
 
   if (!user) {
-    throw new Error('Invalid credentials');
+    throw new Error('Invalid credentials or email');
   }
 
-  // Compare hashed password
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     throw new Error('Invalid credentials');
   }
 
-  // Generate a JWT token
   const token = jwt.sign({ id: user.id, email: user.email, isAdmin: user.isAdmin }, secretKey, { expiresIn: '1h' });
 
-  // Return the user along with the token
   return { user, token };
 };
 
