@@ -5,7 +5,7 @@ const path = require('path');
 async function readJSONFile(filePath) {
     try {
       const data = await fs.readFile(filePath, 'utf8');
-      console.log("Read data:", data); // Debugging statement
+      console.log("Read data:", data); 
       return JSON.parse(data);
     } catch (err) {
       console.error(`Failed to read file: ${filePath}`, err); // Log the error

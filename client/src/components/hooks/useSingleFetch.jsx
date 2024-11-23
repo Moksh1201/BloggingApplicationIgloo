@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "../../axiosInstance"; // Import your configured axios instance
+import axios from "../../axiosInstance"; 
 
 const useSingleFetch = () => {
   const [data, setData] = useState(null);
@@ -8,24 +8,24 @@ const useSingleFetch = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem('token'); // Retrieve token from local storage
-      console.log('Retrieved token:', token); // Debugging line
+      const token = localStorage.getItem('token'); 
+      console.log('Retrieved token:', token); 
       if (token) {
         try {
           setLoading(true);
           const response = await axios.get('/auth/me', {
             headers: {
-              Authorization: `Bearer ${token}` // Include token in headers
+              Authorization: `Bearer ${token}` 
             }
           });
-          setData(response.data); // Set user profile data
+          setData(response.data); 
         } catch (error) {
-          setError(error.message); // Set error message
+          setError(error.message);
         } finally {
           setLoading(false);
         }
       } else {
-        setError('No token found'); // Error if no token is found
+        setError('No token found'); 
         setLoading(false);
       }
     };

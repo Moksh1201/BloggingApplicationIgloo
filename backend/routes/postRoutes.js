@@ -11,6 +11,8 @@ const {
   likePost,
   unlikePost,
   getLikesForPost,
+  removeComment,
+  updateComment,
 } = require('../controllers/postController');
 const authenticate = require('../middleware/authMiddleware');
 const path = require('path'); // Import path module
@@ -64,82 +66,13 @@ router.put('/:postId', authenticate, updatePost);
 router.delete('/:postId', authenticate, deletePost);
 
 // Route to add a comment to a post
-router.post('/:postId/comments', authenticate, async (req, res, next) => {
-  try {
-    const { postId } = req.params;
-    const { userId, content } = req.body;
-
-    if (!userId || !content) {
-      return res.status(400).json({ error: 'userId and content are required' });
-    }
-
-    const comments = await readJSONFile(commentsFilePath);
-    const post = await readJSONFile(postsFilePath).then(posts => posts.find(p => p._id === postId));
-
-    if (!post) return next(new Error("Post not found"));
-
-    const newComment = {
-      _id: uuidv4(),
-      postId,
-      userId,
-      content,
-      createdAt: new Date(),
-    };
-
-    comments.push(newComment);
-    await writeJSONFile(commentsFilePath, comments);
-
-    res.status(201).json(newComment);
-  } catch (err) {
-    console.error('Error in addComment route:', err);
-    next(err);
-  }
-});
+router.post('/:postId/comments', authenticate,addComment);
 
 // Route to remove a comment from a post
-router.delete('/:postId/comments/:commentId', authenticate, async (req, res, next) => {
-  try {
-    const { postId, commentId } = req.params;
-    const comments = await readJSONFile(commentsFilePath);
-    const updatedComments = comments.filter(c => !(c.postId === postId && c._id === commentId));
-    await writeJSONFile(commentsFilePath, updatedComments);
-    res.status(204).send();
-  } catch (err) {
-    console.error('Error in deleteComment route:', err);
-    next(err);
-  }
-});
+router.delete('/:postId/comments/:commentId', authenticate, removeComment);
 
 // Route to update a comment
-router.put('/:postId/comments/:commentId', authenticate, async (req, res, next) => {
-  try {
-    const { postId, commentId } = req.params;
-    const { content } = req.body;
-
-    if (!content) {
-      return res.status(400).json({ error: 'Content is required' });
-    }
-
-    const comments = await readJSONFile(commentsFilePath);
-    const commentIndex = comments.findIndex(c => c.postId === postId && c._id === commentId);
-
-    if (commentIndex === -1) {
-      return res.status(404).json({ error: 'Comment not found' });
-    }
-
-    comments[commentIndex] = {
-      ...comments[commentIndex],
-      content,
-      updatedAt: new Date(),
-    };
-
-    await writeJSONFile(commentsFilePath, comments);
-    res.status(200).json(comments[commentIndex]);
-  } catch (err) {
-    console.error('Error in updateComment route:', err);
-    next(err);
-  }
-});
+router.put('/:postId/comments/:commentId', authenticate, updateComment);
 
 // Route to get all comments for a post
 router.get('/:postId/comments', getComments);

@@ -1,60 +1,61 @@
-const fs = require('fs');
 const path = require('path');
-const adminUsersPath = path.resolve(__dirname, '../data/adminUsers.json');
+const { readJSONFile, writeJSONFile } = require('../utils/fileUtils');
+const adminUsersPath = path.resolve(__dirname, '../data/admin.json');
+const postsPath = path.resolve(__dirname, '../data/posts.json');
+const usersPath = path.resolve(__dirname, '../data/users.json');
 
-const readAdminUsers = () => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(adminUsersPath, 'utf8', (err, data) => {
-      if (err) return reject(err);
-      resolve(JSON.parse(data));
-    });
-  });
-};
-
-const writeAdminUsers = (adminUsers) => {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(adminUsersPath, JSON.stringify(adminUsers, null, 2), (err) => {
-      if (err) return reject(err);
-      resolve();
-    });
-  });
-};
-
+// Fetching all admin users
 const getAllAdminUsers = async () => {
-  const adminUsers = await readAdminUsers();
+  const adminUsers = await readJSONFile(adminUsersPath);
   return adminUsers;
 };
 
-const getAdminUserById = async (id) => {
-  const adminUsers = await readAdminUsers();
-  return adminUsers.find(user => user.id === id);
-};
-
+// Creating a new admin user
 const createAdminUser = async (newAdminUser) => {
-  const adminUsers = await readAdminUsers();
+  const adminUsers = await readJSONFile(adminUsersPath);
   adminUsers.push(newAdminUser);
-  await writeAdminUsers(adminUsers);
+  await writeJSONFile(adminUsersPath, adminUsers);
 };
 
-const updateAdminUser = async (id, updatedAdminUser) => {
-  const adminUsers = await readAdminUsers();
-  const index = adminUsers.findIndex(user => user.id === id);
-  if (index !== -1) {
-    adminUsers[index] = { ...adminUsers[index], ...updatedAdminUser };
-    await writeAdminUsers(adminUsers);
-  }
-};
-
+// Deleting an admin user by ID
 const deleteAdminUser = async (id) => {
-  let adminUsers = await readAdminUsers();
+  let adminUsers = await readJSONFile(adminUsersPath);
   adminUsers = adminUsers.filter(user => user.id !== id);
-  await writeAdminUsers(adminUsers);
+  await writeJSONFile(adminUsersPath, adminUsers);
+};
+
+// Fetching all users
+const getAllUsers = async () => {
+  const users = await readJSONFile(usersPath);
+  return users;
+};
+
+// Fetching all posts
+const getAllPosts = async () => {
+  const posts = await readJSONFile(postsPath);
+  return posts;
+};
+
+// Deleting a user
+const deleteUser = async (id) => {
+  let users = await readJSONFile(usersPath);
+  users = users.filter(user => user.id !== id);
+  await writeJSONFile(usersPath, users);
+};
+
+// Deleting a post
+const deletePost = async (id) => {
+  let posts = await readJSONFile(postsPath);
+  posts = posts.filter(post => post.id !== id);
+  await writeJSONFile(postsPath, posts);
 };
 
 module.exports = {
   getAllAdminUsers,
-  getAdminUserById,
   createAdminUser,
-  updateAdminUser,
   deleteAdminUser,
+  getAllUsers,
+  getAllPosts,
+  deleteUser,
+  deletePost,
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { LiaUserSolid } from "react-icons/lia";
 import { MdOutlineLocalLibrary } from "react-icons/md";
 import { BiSpreadsheet } from "react-icons/bi";
@@ -8,6 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Blog } from "../../../Context/Context";
 import { secretEmail } from "../../../utils/helper";
 import { toast } from "react-toastify";
+import Loading from "../../Loading/Loading";
 
 const UserModal = ({ setModal }) => {
   const { currentUser, setCurrentUser } = Blog();
@@ -16,11 +17,15 @@ const UserModal = ({ setModal }) => {
   // Ensure currentUser is valid and has an email
   console.log("Current User:", currentUser);
 
+  if (!currentUser) {
+    return <Loading />;
+  }
+
   const userModal = [
     {
       title: "Profile",
       icon: <LiaUserSolid />,
-      path: `/profile/${currentUser?.id}`,
+      path: `/profile/${currentUser.id}`,
     },
     {
       title: "Library",
@@ -45,17 +50,9 @@ const UserModal = ({ setModal }) => {
         method: "POST",
         credentials: "include",
       });
-
-      // Remove token from local storage
       localStorage.removeItem("authToken");
-
-      // Clear the current user context
       setCurrentUser(null);
-
-      // Redirect to login page
       navigate("/login", { replace: true });
-
-      // Show success message
       toast.success("User has been logged out");
     } catch (error) {
       console.error("Logout error:", error);
@@ -65,9 +62,7 @@ const UserModal = ({ setModal }) => {
 
   return (
     <section className="absolute w-[18rem] p-6 bg-white right-0 top-[100%] shadow rounded-md z-50 text-gray-500">
-      <Link
-        to="/write"
-        className="flex md:hidden items-center gap-1 text-gray-500">
+      <Link to="/write" className="flex md:hidden items-center gap-1 text-gray-500">
         <span className="text-3xl">
           <LiaEditSolid />
         </span>
@@ -90,7 +85,7 @@ const UserModal = ({ setModal }) => {
         className="flex flex-col pt-5 cursor-pointer hover:text-black/70">
         Sign Out
         <span className="text-sm">
-          {currentUser?.email ? secretEmail(currentUser.email) : 'Email not available'}
+          {currentUser.email ? secretEmail(currentUser.email) : 'Email not available'}
         </span>
       </button>
     </section>

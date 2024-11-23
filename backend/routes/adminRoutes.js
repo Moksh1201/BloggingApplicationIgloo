@@ -1,48 +1,69 @@
-
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
-const authMiddleware = require('../middleware/authMiddleware');
+const { addAdmin } = require('../controllers/adminController'); 
+const authenticateAdmin = require('../middleware/authenticateAdmin');
+const {
+  getPosts,
+} = require('../controllers/postController');
 
-// Route to get all users
-router.get('/users', authMiddleware, async (req, res) => {
+// Get all admins
+router.get('/admins', authenticateAdmin, async (req, res) => {
   try {
-    const users = await adminController.getAllUsers();
+    const admins = await adminController.getAdmins(req, res);
+    res.status(200).json(admins);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Add a new admin (requires secret key)
+router.post('/add-admin', authenticateAdmin, addAdmin);
+
+// Remove an admin
+router.delete('/admins/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const response = await adminController.removeAdmin(req, res);
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get all users
+router.get('/users', authenticateAdmin, async (req, res) => {
+  try {
+    const users = await adminController.getAllUsers(req, res);
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
-// Route to get all posts
-router.get('/posts', authMiddleware, async (req, res) => {
-  try {
-    const posts = await adminController.getAllPosts();
-    res.status(200).json(posts);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// Get all posts
+router.get('/posts', authenticateAdmin,  getPosts);
+  
+   
 
-// Route to delete a user
-router.delete('/users/:id', authMiddleware, async (req, res) => {
+// Delete a user
+router.delete('/users/:id', authenticateAdmin, async (req, res) => {
   try {
     const userId = req.params.id;
-    await adminController.deleteUser(userId);
+    await adminController.deleteUser(req, res);
     res.status(204).send();
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
-// Route to delete a post
-router.delete('/posts/:id', authMiddleware, async (req, res) => {
+// Delete a post
+router.delete('/posts/:id', authenticateAdmin, async (req, res) => {
   try {
     const postId = req.params.id;
-    await adminController.deletePost(postId);
+    await adminController.deletePost(req, res);
     res.status(204).send();
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 

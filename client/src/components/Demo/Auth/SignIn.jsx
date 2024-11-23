@@ -1,7 +1,8 @@
+
 import React, { useState } from "react";
 import Input from "../../../utils/Input";
 import { MdKeyboardArrowLeft } from "react-icons/md";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai"; // Import icons for show/hide password
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from '../../../axiosInstance';
@@ -16,70 +17,79 @@ const SignIn = ({ setSignReq }) => {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false); // For toggling password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Toggle password visibility
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
-  // Validation checks
   const validateForm = () => {
     let formErrors = {};
-
-    // Email validation
     if (!form.email.trim()) {
       formErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(form.email)) {
       formErrors.email = "Email is not valid";
     }
-
-    // Password validation
     if (!form.password.trim()) {
       formErrors.password = "Password is required";
     } else if (form.password.length < 6) {
       formErrors.password = "Password must be at least 6 characters long";
     }
-
     return formErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     const formErrors = validateForm();
     setErrors(formErrors);
-
+  
     if (Object.keys(formErrors).length > 0) {
       toast.error("Please fix the errors before submitting");
       return;
     }
-
+  
     try {
       setLoading(true);
       const response = await axiosInstance.post("/auth/login", form);
-
       const { token } = response.data;
-
+  
       if (token) {
         localStorage.setItem("authToken", token);
-        setCurrentUser({ token }); // Update context state
+  
+        // Using the token from localStorage to fetch the user profile
+        const userProfileResponse = await axiosInstance.get("/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        setCurrentUser({
+          id: userProfileResponse.data.id,
+          username: userProfileResponse.data.username,
+          email: userProfileResponse.data.email,
+          token: token,
+        });
+  
         toast.success("User has been logged in");
-        navigate("/"); // Redirect to home page
+        navigate("/"); // Redirect to the landing page after successful login
       } else {
         toast.error("Failed to get authentication token");
       }
     } catch (error) {
-      if (form.password.length >= 6) {
-        // Show incorrect password error if password length is valid but still wrong
-        setErrors({ password: "Incorrect password" });
+      console.error("Login error:", error.response?.data || error.message);
+  
+      const errorMessage = error.response?.data?.message || "Failed to sign in";
+      if (error.response?.status === 401) {
+        setErrors({ password: errorMessage });
       } else {
-        toast.error(error.response?.data?.message || "Failed to sign in");
+        toast.error(errorMessage);
       }
     } finally {
       setLoading(false);
     }
   };
+  
+  
 
   return (
     <div className="size mt-[6rem] text-center">
@@ -88,11 +98,9 @@ const SignIn = ({ setSignReq }) => {
         Enter your email address and password to sign in.
       </p>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {/* Email Input */}
         <Input form={form} setForm={setForm} type="email" title="email" />
         {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
 
-        {/* Password Input with eye icon to toggle visibility */}
         <div className="relative">
           <Input
             form={form}
@@ -110,7 +118,6 @@ const SignIn = ({ setSignReq }) => {
         </div>
         {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
 
-        {/* Submit Button */}
         <button
           type="submit"
           className={`px-4 py-1 text-sm rounded-full bg-green-700

@@ -1,58 +1,56 @@
 [
   {
-    "id": "948b0528-e2d8-4433-9f97-a7c0582cf6d7",
-    "username": "moksh",
-    "email": "123@gamil.com",
-    "password": "$2b$10$OU4/0MZp7W27xu4AhCRSFuLkoZJEafTYfwcDTCOkMqI6spQ1Ksq0W",
-    "isAdmin": false
+    "id": "08541f43-bc46-4387-89ba-2c578907ef85",
+    "username": "hello12",
+    "email": "moksh12@example.com",
+    "password": "$2b$10$NGsyBlUpGqDTptHsyJ4fu.re5AL7tS3ken/IZMLKNGsSdTMjXQopq",
+    "isPrivate": false,
+    "followers": [],
+    "following": []
   },
   {
-    "id": "8b648833-36d0-43d1-9353-e5e758430dc6",
-    "username": "testuser12",
-    "email": "testuse12r@example.com",
-    "password": "$2b$10$gLdzRSu6.arVYU2Blwsjp.DSJrtNov2LSDkUHoHYB6Q1BBBKenyTi",
-    "isAdmin": false
+    "id": "c360a54c-1334-4f63-82b8-1a1594a65480",
+    "username": "hello123",
+    "email": "moksh123@example.com",
+    "password": "$2b$10$HU0sECReNBddjwTZrqRfueWUhaqfgI68lnuHFbhjh8q/Dj3ZAGGG2",
+    "isPrivate": false,
+    "followers": [],
+    "following": []
   },
   {
-    "id": "9ec934f0-be5d-4d49-a385-94fc1e523cfb",
-    "username": "piyush",
-    "email": "piyush123@example.com",
-    "password": "$2b$10$OHchIzJ2rYMCORXmQ2cRfekK7ZoGYzE9q2MM.QN3gu7BaTSTJPLmG",
-    "isAdmin": false
+    "id": "b24d786e-ea7d-47a2-8012-8d8d972000d4",
+    "username": "hello",
+    "email": "moksh@example.com",
+    "password": "$2b$10$hp3RZWyoltdncSQLVhx8aueWGyKUKK0SUXgUWqacR2Uvxr/eCJdkK",
+    "followers": [],
+    "following": []
   },
   {
-    "id": "59d7c469-a5a3-4de9-a446-5e2f2ad2ccc8",
-    "username": "Newuser",
+    "id": "7c5c4482-8a35-4217-a791-00fd3d8f3a7b",
+    "username": "PiyushMadaan",
     "email": "testing123@gmail.com",
-    "password": "$2b$10$mo4w08yyWDDX7kHQLKhM.Oneci8PeS/oUTITnm775zooCB4yaWJX6",
-    "isAdmin": false
+    "password": "$2b$10$LZtvyER4blRrUj0HYIAdaONWacaMV8z6JE7nSOksVUDrniwolYpoO",
+    "followers": [
+      "d9f3331d-531a-4c11-8504-04986291d378"
+    ],
+    "following": [
+      "d9f3331d-531a-4c11-8504-04986291d378"
+    ],
+    "bio": "Living to travel",
+    "userImg": ""
   },
   {
-    "id": "8dac0298-753a-49d2-838f-91cef58729e9",
-    "username": "KARTIKXYZ",
-    "email": "KARTIKXYZ@gmail.com",
-    "password": "$2b$10$.M1lHrKp7JlETRh8Job6wO2gMDuAwa9PaYVjBAG3tVrPsHf9OHDLi",
-    "isAdmin": false
-  },
-  {
-    "id": "ce6b4c58-3494-4662-9d51-15cb57ef40ff",
-    "username": "Piyush",
-    "email": "Piyush@gmail.com",
-    "password": "$2b$10$CCXS4IqhcNq0Q.mk3LHiZuefAS9ITOrsicecu4FEA.yUgER/twLw2",
-    "isAdmin": false
-  },
-  {
-    "id": "efbd94fc-9644-4bc3-a171-2a9a69bc0248",
-    "username": "madaanmoksh",
-    "email": "madaan@gamil.com",
-    "password": "$2b$10$XPOQbiyeulQVCib0XuHTF.43.3T.7gqpt2ZKGc14UzKG0pz8Jo40C",
-    "isAdmin": false
-  },
-  {
-    "id": "fb605640-ec09-4b80-8570-33ab9979e8e9",
-    "username": "madaanmoksh",
+    "id": "d9f3331d-531a-4c11-8504-04986291d378",
+    "username": "Madaan",
     "email": "moksh4814.be22@chitkara.edu.in",
-    "password": "$2b$10$0LfKRy9B7Rgnv3G0tY7/puQbPOpXgQ1Oi5CnBqzP4CU6oLh7T/Kni",
-    "isAdmin": false
+    "password": "$2b$10$a7poyk7zLTdoIXsU2/o98O1DBomobg5TJJg0mvIshxDbFHSYOm7LW",
+    "bio": "Got you",
+    "followers": [
+      "7c5c4482-8a35-4217-a791-00fd3d8f3a7b"
+    ],
+    "following": [
+      "7c5c4482-8a35-4217-a791-00fd3d8f3a7b"
+    ],
+    "userImg": ""
   }
 ]
