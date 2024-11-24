@@ -14,24 +14,31 @@
 // function App() {
 //   const { currentUser, loading } = Blog();
 
+//   useEffect(() => {
+//     console.log("Current User:", currentUser);
+//     console.log("Loading State:", loading);
+//   }, [currentUser, loading]);
+
 //   if (loading) {
-//     return <div>Loading...</div>; // Optional: Add a more styled loading indicator
+//     return <div>Loading...</div>; // Placeholder for loading screen
 //   }
 
 //   return (
 //     <>
 //       {currentUser ? <HomeHeader /> : <DemoHeader />}
 //       <Routes>
-//         {currentUser ? (
-//           <Route path="/" element={<Home />} />
-//         ) : (
-//           <Route path="/demo" element={<Demo />} />
-//         )}
+//         {/* Redirect based on user authentication */}
+//         <Route
+//           path="/"
+//           element={currentUser ? <Home /> : <Navigate to="/login" />}
+//         />
+//         <Route path="/demo" element={<Demo />} />
 //         <Route path="/profile/:userId" element={<Profile />} />
-//         <Route path="/write" element={<Write />} />
+//         <Route path="/write" element={currentUser ? <Write /> : <Navigate to="/demo" />} />
 //         <Route path="/posts/:postId" element={<SinglePost />} />
-//         <Route path="/editPost/:postId" element={<EditPost />} />
+//         <Route path="/editPost/:postId" element={currentUser ? <EditPost /> : <Navigate to="/demo" />} />
 //         <Route path="/filter/:tag" element={<FilterPost />} />
+//         {/* Fallback for unknown routes */}
 //         <Route path="*" element={<Navigate to={currentUser ? "/" : "/demo"} />} />
 //       </Routes>
 //     </>
@@ -56,19 +63,63 @@ function App() {
   const { currentUser, loading } = Blog();
 
   useEffect(() => {
-    console.log("Current User:", currentUser);
+    console.log("Current User:", currentUser );
     console.log("Loading State:", loading);
-  }, [currentUser, loading]);
+  
+    if (!document.getElementById("bp-webchat-script")) {
+      const botpressScript = document.createElement("script");
+      botpressScript.src = "https://cdn.botpress.cloud/webchat/v2.2/inject.js";
+      botpressScript.async = true;
+      botpressScript.id = "bp-webchat-script";
+      botpressScript.onload = () => {
+        setTimeout(() => {
+          if (window.botpressWebChat) {
+            window.botpressWebChat.init({
+              botId: "f27f6a5c-1964-4fe1-8241-13c85a190fe8",
+              hostUrl: "https://cdn.botpress.cloud",
+              enableReset: true,
+              enableTranscriptDownload: true,
+            });
+          } else {
+            console.error("Botpress WebChat not loaded correctly");
+          }
+        }, 500); // Adjust the delay as necessary
+      };
+      // document.body.appendChild(botpressScript);
+    }
+  
+    const customScript = document.createElement("script");
+    customScript.src = "https://files.bpcontent.cloud/2024/11/22/05/20241122055641-WDW5AQOT.js";
+    customScript.async = true;
+    document.body.appendChild(customScript);
+  
+    return () => {
+      const botScript = document.getElementById("bp-webchat-script");
+      if (botScript) {
+        botScript.remove();
+      }
+    };
+  }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // Placeholder for loading screen
+    return <div>Loading...</div>;
   }
 
   return (
     <>
       {currentUser ? <HomeHeader /> : <DemoHeader />}
+      {/* Persistent Chatbot Widget */}
+      <div
+        id="bp-web-widget"
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          zIndex: "1000",
+        }}
+      />
       <Routes>
-        {/* Redirect based on user authentication */}
+        {/* Routes */}
         <Route
           path="/"
           element={currentUser ? <Home /> : <Navigate to="/login" />}
@@ -79,7 +130,6 @@ function App() {
         <Route path="/posts/:postId" element={<SinglePost />} />
         <Route path="/editPost/:postId" element={currentUser ? <EditPost /> : <Navigate to="/demo" />} />
         <Route path="/filter/:tag" element={<FilterPost />} />
-        {/* Fallback for unknown routes */}
         <Route path="*" element={<Navigate to={currentUser ? "/" : "/demo"} />} />
       </Routes>
     </>
