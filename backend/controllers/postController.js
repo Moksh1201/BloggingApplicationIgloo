@@ -7,6 +7,7 @@ const { readJSONFile, writeJSONFile } = require('../utils/fileUtils');
 const postsFilePath = path.join(__dirname, '../data/posts.json');
 const commentsFilePath = path.join(__dirname, '../data/comments.json');
 const likesFilePath = path.join(__dirname, '../data/likes.json');
+const usersFilePath = './data/users.json';
 
 // Controller functions
 const getPosts = async (req, res, next) => {
@@ -106,6 +107,46 @@ const deletePost = async (req, res, next) => {
   }
 };
 
+// const addComment = async (req, res, next) => {
+//   try {
+//     const { postId } = req.params;
+//     const { content, parentCommentId } = req.body;
+//     const userId = req.user?.id;
+
+//     if (!userId || !content) {
+//       return res.status(400).json({ error: 'userId and content are required' });
+//     }
+
+//     const comments = await readJSONFile(commentsFilePath);
+
+//     const newComment = {
+//       _id: uuidv4(),
+//       postId,
+//       userId,
+//       content,
+//       parentCommentId: parentCommentId || null,
+//       createdAt: new Date(),
+//       replies: [], // Initialize for replies
+//     };
+
+//       if (parentCommentId) {
+//       const parentComment = comments.find((c) => c._id === parentCommentId);
+//       if (!parentComment) {
+//         return res.status(404).json({ error: 'Parent comment not found' });
+//       }
+//       const newReply = { ...newComment, _id: uuidv4() };
+//       parentComment.replies.unshift(newReply);
+//     } else {
+//       comments.unshift(newComment);
+//     }
+    
+
+//     await writeJSONFile(commentsFilePath, comments);
+//     res.status(201).json(newComment);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 const addComment = async (req, res, next) => {
   try {
     const { postId } = req.params;
@@ -116,35 +157,48 @@ const addComment = async (req, res, next) => {
       return res.status(400).json({ error: 'userId and content are required' });
     }
 
+    // Fetch users to get the username
+    const users = await readJSONFile(usersFilePath);
+    const user = users.find((u) => u.id === userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     const comments = await readJSONFile(commentsFilePath);
 
+    // Create a new comment with username included
     const newComment = {
       _id: uuidv4(),
       postId,
       userId,
+      username: user.username, // Include username
       content,
       parentCommentId: parentCommentId || null,
       createdAt: new Date(),
       replies: [], // Initialize for replies
     };
 
+    // Handle parent comment (replies)
     if (parentCommentId) {
-      const parentComment = comments.find(c => c._id === parentCommentId);
+      const parentComment = comments.find((c) => c._id === parentCommentId);
       if (!parentComment) {
         return res.status(404).json({ error: 'Parent comment not found' });
       }
-      parentComment.replies.unshift(newComment);
+      const newReply = { ...newComment, _id: uuidv4() };
+      parentComment.replies.unshift(newReply);
     } else {
       comments.unshift(newComment);
     }
 
+    // Save updated comments
     await writeJSONFile(commentsFilePath, comments);
+
     res.status(201).json(newComment);
   } catch (err) {
     next(err);
   }
 };
-
 const getComments = async (req, res, next) => {
   try {
     const { postId } = req.params;

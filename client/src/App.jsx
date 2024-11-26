@@ -58,7 +58,13 @@ import Write from "./components/Home/Write/Write";
 import SinglePost from "./components/Common/Posts/SinglePost";
 import EditPost from "./components/Common/Posts/EditPost";
 import FilterPost from "./components/Demo/FilterPost";
+import DeleteUser from "./components/Home/Header/DeleteUser";
+
+import AdminPosts from "./components/Home/Header/AdminPosts";
 import AddAdmin from "./components/Home/Header/AddAdmin";
+
+
+
 
 function App() {
   const { currentUser, loading } = Blog();
@@ -132,6 +138,9 @@ function App() {
         <Route path="/editPost/:postId" element={currentUser ? <EditPost /> : <Navigate to="/demo" />} />
         <Route path="/filter/:tag" element={<FilterPost />} />
         <Route path="/add-admin" element={<AddAdmin />} />
+        <Route path="/admin-posts" element={<AdminPosts />} />
+        <Route path="/delete-users" element={<DeleteUser />} />
+
         <Route path="*" element={<Navigate to={currentUser ? "/" : "/demo"} />} />
       </Routes>
     </>

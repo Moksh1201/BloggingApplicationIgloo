@@ -1,4 +1,3 @@
-
 // import React, { useState, useEffect } from "react";
 // import { BsMedium } from "react-icons/bs";
 // import { CiSearch } from "react-icons/ci";
@@ -15,31 +14,33 @@
 // const HomeHeader = () => {
 //   const [modal, setModal] = useState(false);
 //   const [searchModal, setSearchModal] = useState(false);
-//   const [loading, setLoading] = useState(true); // Initial loading state
-//   const [isAdmin, setIsAdmin] = useState(false); // Tracks admin status
-//   const { currentUser } = Blog(); // Fetch current user from Blog context
+//   const [loading, setLoading] = useState(true); // Set loading state initially true
+//   const { currentUser, setPublish } = Blog(); // Fetch currentUser and setPublish from Blog context
 //   const navigate = useNavigate();
 //   const { pathname } = useLocation();
 
 //   useEffect(() => {
-//     // Check if currentUser is loaded and set admin status
 //     if (currentUser) {
-//       setIsAdmin(currentUser.isAdmin || false);
-//       setLoading(false);
+//       setLoading(false); // Stop the loading once currentUser data is fetched
 //     }
-//   }, [currentUser]);
+//   }, [currentUser]); // This will run whenever currentUser changes
 
-//   // Function to navigate to Videos
 //   const goToVideos = () => {
 //     navigate("/videos");
 //   };
 
-//   // Function to navigate to Add Admin page
 //   const handleAddAdminClick = () => {
-//     navigate("/add-admin"); // Navigate to the add admin page
+//     navigate("/add-admin");
 //   };
 
-//   if (loading) return <Loading />; // Show loading indicator while checking currentUser
+//   // Show loader while currentUser is loading
+//   if (loading) {
+//     return (
+//       <div className="flex items-center justify-center min-h-screen">
+//         <Loading />
+//       </div>
+//     );
+//   }
 
 //   return (
 //     <header className="border-b border-gray-200">
@@ -56,7 +57,6 @@
 
 //         {/* Right Section: Buttons and Icons */}
 //         <div className="flex items-center gap-3 sm:gap-7">
-//           {/* Mobile Search Icon */}
 //           <span
 //             onClick={() => setSearchModal(true)}
 //             className="flex sm:hidden text-3xl text-gray-300 cursor-pointer"
@@ -64,7 +64,6 @@
 //             <CiSearch />
 //           </span>
 
-//           {/* Navigate to Videos Button */}
 //           <button
 //             onClick={goToVideos}
 //             className="btn !bg-blue-500 !py-1 !text-white !rounded-full"
@@ -72,10 +71,9 @@
 //             Vibes ⭐️
 //           </button>
 
-//           {/* Publish or Write Button */}
 //           {pathname === "/write" ? (
 //             <button
-//               onClick={() => setPublish(true)}
+//               onClick={() => setPublish(true)} // Trigger the publish logic when on "/write" page
 //               className="btn !bg-green-700 !py-1 !text-white !rounded-full"
 //             >
 //               Publish
@@ -93,7 +91,7 @@
 //           )}
 
 //           {/* Add Admin Button for Admin Users */}
-//           {isAdmin && (
+//           {currentUser?.isAdmin && (
 //             <button
 //               onClick={handleAddAdminClick}
 //               className="btn !bg-purple-600 !text-white !rounded-full"
@@ -102,12 +100,10 @@
 //             </button>
 //           )}
 
-//           {/* Notifications Icon */}
 //           <span className="text-3xl text-gray-500 cursor-pointer">
 //             <IoMdNotificationsOutline />
 //           </span>
 
-//           {/* Profile Section */}
 //           <div className="flex items-center relative">
 //             <img
 //               onClick={() => setModal(true)}
@@ -141,6 +137,7 @@ import { CiSearch } from "react-icons/ci";
 import { LiaEditSolid } from "react-icons/lia";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { MdKeyboardArrowDown } from "react-icons/md";
+import { IoClose } from "react-icons/io5"; 
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Search from "./Search";
 import Modal from "../../../utils/Modal";
@@ -151,26 +148,48 @@ import { Blog } from "../../../Context/Context";
 const HomeHeader = () => {
   const [modal, setModal] = useState(false);
   const [searchModal, setSearchModal] = useState(false);
-  const [loading, setLoading] = useState(true); // Set loading state initially true
-  const { currentUser, setPublish } = Blog(); // Fetch currentUser and setPublish from Blog context
+  const [loading, setLoading] = useState(true);
+  const [dropdownOpen, setDropdownOpen] = useState(false); // Track dropdown state
+  const [overlayVisible, setOverlayVisible] = useState(false); // Track overlay visibility
+  const { currentUser, setPublish } = Blog();
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
   useEffect(() => {
     if (currentUser) {
-      setLoading(false); // Stop the loading once currentUser data is fetched
+      setLoading(false);
     }
-  }, [currentUser]); // This will run whenever currentUser changes
+  }, [currentUser]);
 
   const goToVideos = () => {
     navigate("/videos");
+  };
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+    setOverlayVisible(!overlayVisible); 
   };
 
   const handleAddAdminClick = () => {
     navigate("/add-admin");
   };
 
-  // Show loader while currentUser is loading
+  const handleDeleteUserClick = () => {
+    navigate("/delete-users");
+  };
+
+  const handleDeletePostClick = () => {
+
+    navigate("/admin-posts");
+  };
+  
+
+  // Close the dropdown when the cross button is clicked
+  const closeDropdown = () => {
+    setDropdownOpen(false);
+    setOverlayVisible(false);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -180,8 +199,16 @@ const HomeHeader = () => {
   }
 
   return (
-    <header className="border-b border-gray-200">
-      <div className="size h-[60px] flex items-center justify-between">
+    <header className="border-b border-gray-200 relative">
+      {/* Overlay behind dropdown when open */}
+      {overlayVisible && (
+        <div
+          className="fixed top-0 left-0 w-full h-full bg-black opacity-50 z-10"
+          onClick={closeDropdown} // Close dropdown when clicking overlay
+        ></div>
+      )}
+
+      <div className="size h-[60px] flex items-center justify-between relative z-20">
         {/* Left Section: Logo and Search */}
         <div className="flex items-center gap-3">
           <Link to={"/"}>
@@ -210,7 +237,7 @@ const HomeHeader = () => {
 
           {pathname === "/write" ? (
             <button
-              onClick={() => setPublish(true)} // Trigger the publish logic when on "/write" page
+              onClick={() => setPublish(true)}
               className="btn !bg-green-700 !py-1 !text-white !rounded-full"
             >
               Publish
@@ -227,14 +254,53 @@ const HomeHeader = () => {
             </Link>
           )}
 
-          {/* Add Admin Button for Admin Users */}
+          {/* Admin Check Dropdown for Admin Users */}
           {currentUser?.isAdmin && (
-            <button
-              onClick={handleAddAdminClick}
-              className="btn !bg-purple-600 !text-white !rounded-full"
-            >
-              Add Admin
-            </button>
+            <div className="relative">
+              <button
+                onClick={toggleDropdown}
+                className="btn !bg-purple-600 !text-white !rounded-full flex items-center gap-2"
+              >
+                Admin Options <MdKeyboardArrowDown />
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 bg-white shadow-md rounded-md border border-gray-200 z-20 w-48">
+                  {/* Close button */}
+                  <div className="flex justify-between items-center p-2">
+                    <span className="font-semibold text-gray-800">Admin Menu</span>
+                    <button onClick={closeDropdown} className="text-gray-500">
+                      <IoClose className="text-xl" />
+                    </button>
+                  </div>
+                  <ul className="list-none p-2">
+                    <li>
+                      <button
+                        onClick={handleAddAdminClick}
+                        className="block text-gray-800 py-2 px-4 hover:bg-gray-100 w-full text-left"
+                      >
+                        Add Admin
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={handleDeleteUserClick}
+                        className="block text-gray-800 py-2 px-4 hover:bg-gray-100 w-full text-left"
+                      >
+                        Delete User
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={handleDeletePostClick}
+                        className="block text-gray-800 py-2 px-4 hover:bg-gray-100 w-full text-left"
+                      >
+                        Delete Post
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
           )}
 
           <span className="text-3xl text-gray-500 cursor-pointer">

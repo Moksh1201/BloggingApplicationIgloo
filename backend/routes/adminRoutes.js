@@ -30,15 +30,15 @@ router.delete('/admins/:id', authenticateAdmin, async (req, res) => {
   }
 });
 
-// Get all users
-router.get('/users', authenticateAdmin, async (req, res) => {
-  try {
-    const users = await adminController.getAllUsers(req, res);
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+// // Get all users
+// router.get('/users', authenticateAdmin, async (req, res) => {
+//   try {
+//     const users = await adminController.getAllUsers(req, res);
+//     res.status(200).json(users);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// });
 
 // Get all posts
 router.get('/posts', authenticateAdmin,  getPosts);

@@ -1,31 +1,5 @@
 [
   {
-    "id": "08541f43-bc46-4387-89ba-2c578907ef85",
-    "username": "hello12",
-    "email": "moksh12@example.com",
-    "password": "$2b$10$NGsyBlUpGqDTptHsyJ4fu.re5AL7tS3ken/IZMLKNGsSdTMjXQopq",
-    "isPrivate": false,
-    "followers": [],
-    "following": []
-  },
-  {
-    "id": "c360a54c-1334-4f63-82b8-1a1594a65480",
-    "username": "hello123",
-    "email": "moksh123@example.com",
-    "password": "$2b$10$HU0sECReNBddjwTZrqRfueWUhaqfgI68lnuHFbhjh8q/Dj3ZAGGG2",
-    "isPrivate": false,
-    "followers": [],
-    "following": []
-  },
-  {
-    "id": "b24d786e-ea7d-47a2-8012-8d8d972000d4",
-    "username": "hello",
-    "email": "moksh@example.com",
-    "password": "$2b$10$hp3RZWyoltdncSQLVhx8aueWGyKUKK0SUXgUWqacR2Uvxr/eCJdkK",
-    "followers": [],
-    "following": []
-  },
-  {
     "id": "7c5c4482-8a35-4217-a791-00fd3d8f3a7b",
     "username": "Piyush",
     "email": "testing123@gmail.com",
@@ -82,5 +56,14 @@
     "followers": [],
     "following": [],
     "isPrivate": false
+  },
+  {
+    "id": "31f21a30-2fb6-4184-80c4-4681351e21e2",
+    "username": "Jahanvi",
+    "email": "Jahanvi@example.com",
+    "password": "$2b$10$7L77dad.aXS4C/N4jrDvre28WCR4XjcJJ0cT8K/owgg5fsUIfSfX.",
+    "bio": "",
+    "followers": [],
+    "following": []
   }
 ]

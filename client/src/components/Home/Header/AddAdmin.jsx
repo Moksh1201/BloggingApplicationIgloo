@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../../axiosInstance"; // Adjust the path if needed
+import axiosInstance from "../../../axiosInstance";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const AddAdmin = () => {

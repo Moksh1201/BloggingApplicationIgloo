@@ -244,6 +244,32 @@ const removePost = async (req, res) => {
     res.status(500).json({ message: 'Failed to remove post' });
   }
 };
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Fetch all users
+    const users = await readJSONFile(usersFilePath);
+
+    // Find the user by ID
+    const userIndex = users.findIndex(user => user.id === id);
+    if (userIndex === -1) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Remove the user from the array
+    users.splice(userIndex, 1);
+
+    // Save the updated list back to the file
+    await writeJSONFile(usersFilePath, users);
+
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Failed to delete user' });
+  }
+};
+
 
 
 module.exports = {
@@ -254,5 +280,6 @@ module.exports = {
   getAllUsers,
   getAllPosts,
   removePost,
-  checkIfAdmin
+  checkIfAdmin,
+  deleteUser
 };
