@@ -27,7 +27,7 @@
   },
   {
     "id": "7c5c4482-8a35-4217-a791-00fd3d8f3a7b",
-    "username": "PiyushMadaan",
+    "username": "Piyush",
     "email": "testing123@gmail.com",
     "password": "$2b$10$LZtvyER4blRrUj0HYIAdaONWacaMV8z6JE7nSOksVUDrniwolYpoO",
     "followers": [
@@ -36,7 +36,7 @@
     "following": [
       "d9f3331d-531a-4c11-8504-04986291d378"
     ],
-    "bio": "Living to travel",
+    "bio": "Born to travel",
     "userImg": ""
   },
   {
@@ -52,5 +52,35 @@
       "7c5c4482-8a35-4217-a791-00fd3d8f3a7b"
     ],
     "userImg": ""
+  },
+  {
+    "id": "c7272baf-1b8f-4ea5-869d-f1623ecd0fa7",
+    "username": "Admin1",
+    "email": "Admin1@gmail.com",
+    "password": "$2b$10$sNVbk1B3znyj5cvLnfr/rudm8GWSSdIQ9VAzMml7y/0MbuuZwpUde",
+    "isAdmin": true,
+    "bio": "",
+    "followers": [],
+    "following": []
+  },
+  {
+    "id": "d8bdb9a7-96ed-4cf0-8e93-59ce49f27135",
+    "username": "admin12",
+    "email": "admin12@example.com",
+    "password": "$2b$10$A5jgn4r/NwM1vihyxU1HfeBf8tFNIbcETYJzEGrrRFs1khwyMfQ8K",
+    "isAdmin": true,
+    "followers": [],
+    "following": [],
+    "isPrivate": false
+  },
+  {
+    "id": "0a3c7684-349c-47d9-908d-a53983971c17",
+    "username": "Admin1234",
+    "email": "Admin1234@gmail.com",
+    "password": "$2b$10$h9nncRrB857qxoMYJld.BOk6K/OBiy1z51bE4PR8zFMNOnx6RsV5m",
+    "isAdmin": true,
+    "followers": [],
+    "following": [],
+    "isPrivate": false
   }
 ]

@@ -1,4 +1,3 @@
-
 // import React, { useState, useEffect } from "react";
 // import { useParams } from "react-router-dom";
 // import axiosInstance from "../../../axiosInstance";
@@ -208,7 +207,6 @@
 // };
 
 // export default Profile;
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../../../axiosInstance";
@@ -223,7 +221,7 @@ import EditProfile from "./EditProfile";
 import CompactProfileModal from "./CompactProfileModal";
 
 const Profile = () => {
-  const { currentUser } = Blog();
+  const { currentUser } = Blog();  // Ensure this returns the correct current user data
   const { userId } = useParams();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -246,14 +244,14 @@ const Profile = () => {
       if (userId) {
         try {
           const token = localStorage.getItem("authToken");
-          const response = await axiosInstance.get(`/auth/me`, {
+          const response = await axiosInstance.get(`/profile/${userId}`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
           const profileData = response.data;
           setProfileData(profileData);
-  
+
           // Fetch details for followers and following
           if (profileData.followers?.length) {
             const followersResponse = await axiosInstance.post(
@@ -263,7 +261,7 @@ const Profile = () => {
             );
             setFollowersData(followersResponse.data);
           }
-  
+
           if (profileData.following?.length) {
             const followingResponse = await axiosInstance.post(
               "/profile/batch-users",
@@ -279,10 +277,9 @@ const Profile = () => {
         }
       }
     };
-  
+
     fetchProfile();
-  }, [userId, currentUser?.userId]);
-  // Depend on both userId and currentUser to handle updates
+  }, [userId]);
 
   const handleViewProfile = (userId) => {
     console.log("View Profile clicked for user:", userId);
@@ -326,14 +323,17 @@ const Profile = () => {
 
         <div className="flex items-center gap-5 mt-[1rem] border-b border-gray-300 mb-[3rem]">
           {activities.map((item, i) => (
-            <div
-              key={i}
-              className={`py-[0.5rem] ${item.title === currentActive.title ? "border-b border-gray-500" : ""}`}
-            >
-              <button onClick={() => setCurrentActive(item)}>
-                {item.title}
-              </button>
-            </div>
+            // Only render the activity if the current user is viewing their own profile
+            (currentUser?.id === profileData?.id || item.title === "Home") && (
+              <div
+                key={i}
+                className={`py-[0.5rem] ${item.title === currentActive.title ? "border-b border-gray-500" : ""}`}
+              >
+                <button onClick={() => setCurrentActive(item)}>
+                  {item.title}
+                </button>
+              </div>
+            )
           ))}
         </div>
 
@@ -344,15 +344,14 @@ const Profile = () => {
       </div>
 
       {compactModal && (
-    <CompactProfileModal
-      users={modalType === "followers" ? followersData : followingData}
-      onClose={() => setCompactModal(false)}
-      onRemove={handleRemove}
-      onViewProfile={handleViewProfile}
-      modalType={modalType}
-    />
-  )}
-
+        <CompactProfileModal
+          users={modalType === "followers" ? followersData : followingData}
+          onClose={() => setCompactModal(false)}
+          onRemove={handleRemove}
+          onViewProfile={handleViewProfile}
+          modalType={modalType}
+        />
+      )}
 
       <button
         onClick={() => setModal(true)}
@@ -385,7 +384,7 @@ const Profile = () => {
             <p className="text-gray-500 first-letter:uppercase text-sm">
               {profileData?.bio || "No bio available"}
             </p>
-            {currentUser?.userId === profileData?.id && (
+            {currentUser?.id === profileData?.id && (
               <button
                 onClick={() => setEditModal(true)}
                 className="text-green-700 pt-6 text-sm w-fit"
@@ -407,7 +406,7 @@ const Profile = () => {
       {editModal && (
         <EditProfile
           profileData={profileData}
-          currentUserId={currentUser?.userId}
+          currentUserId={currentUser?.id}
           editModal={editModal}
           setEditModal={setEditModal}
           handleProfileUpdate={handleProfileUpdate}

@@ -42,54 +42,48 @@ const SignIn = ({ setSignReq }) => {
     e.preventDefault();
     const formErrors = validateForm();
     setErrors(formErrors);
-  
     if (Object.keys(formErrors).length > 0) {
       toast.error("Please fix the errors before submitting");
       return;
     }
-  
+
     try {
       setLoading(true);
       const response = await axiosInstance.post("/auth/login", form);
       const { token } = response.data;
-  
+
       if (token) {
         localStorage.setItem("authToken", token);
-  
-        // Using the token from localStorage to fetch the user profile
+
+        // Fetch the user profile after setting the token to update currentUser
         const userProfileResponse = await axiosInstance.get("/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-  
+
         setCurrentUser({
           id: userProfileResponse.data.id,
           username: userProfileResponse.data.username,
           email: userProfileResponse.data.email,
           token: token,
         });
-  
+
         toast.success("User has been logged in");
-        navigate("/"); // Redirect to the landing page after successful login
+        navigate("/"); 
       } else {
         toast.error("Failed to get authentication token");
       }
     } catch (error) {
-      console.error("Login error:", error.response?.data || error.message);
-  
-      const errorMessage = error.response?.data?.message || "Failed to sign in";
-      if (error.response?.status === 401) {
-        setErrors({ password: errorMessage });
+      if (form.password.length >= 6) {
+        setErrors({ password: "Incorrect password" });
       } else {
-        toast.error(errorMessage);
+        toast.error(error.response?.data?.message || "Failed to sign in");
       }
     } finally {
       setLoading(false);
     }
   };
-  
-  
 
   return (
     <div className="size mt-[6rem] text-center">

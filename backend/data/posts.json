@@ -80,5 +80,14 @@
       "Health"
     ],
     "updatedAt": "2024-10-17T04:17:05.132Z"
+  },
+  {
+    "_id": "a6c4aeb7-c683-4182-8928-7a79ecfafbe7",
+    "userId": "Madaan",
+    "content": "This is the content of the first pos",
+    "title": "post1",
+    "tags": "Technology, JavaScript",
+    "images": [],
+    "updatedAt": "2024-11-25T22:05:59.097Z"
   }
 ]

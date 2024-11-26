@@ -14,49 +14,51 @@ const writeDataToFile = (data) => {
   fs.writeFileSync(favoritesFilePath, JSON.stringify(data, null, 2));
 };
 
-// Add a post to favorites
-const addFavorite = (req, res) => {
-  const { userId, postId } = req.body;
+const addFavoritePost = (userId, postId) => {
   const favorites = readDataFromFile();
 
+  // Avoid duplicates
+  const isDuplicate = favorites.some(fav => fav.userId === userId && fav.postId === postId);
+  if (isDuplicate) {
+    throw new Error('Post is already in favorites');
+  }
+
+  // Create a new favorite entry
   const newFavorite = {
-    id: uuidv4(),
+    id: uuidv4(), // Unique ID for this favorite
     userId,
-    postId,
+    postId, // Include the postId
   };
 
-  favorites.push(newFavorite);
-  writeDataToFile(favorites);
-
-  res.status(201).json({ message: 'Post added to favorites successfully', favorite: newFavorite });
+  favorites.push(newFavorite); // Save the new entry
+  writeDataToFile(favorites); // Write to the JSON file
 };
 
-// Get all favorites of a user
-const getFavorites = (req, res) => {
-  const { userId } = req.params;
-  const favorites = readDataFromFile();
 
-  const userFavorites = favorites.filter(f => f.userId === userId);
-  res.status(200).json(userFavorites);
+const getFavoritePosts = (userId) => {
+  if (!userId) {
+    console.error("No userId provided.");
+    return [];
+  }
+  const favorites = readDataFromFile();
+  const userFavorites = favorites.filter(fav => fav.userId === userId);
+  return userFavorites;
 };
 
-// Remove a post from favorites
-const removeFavorite = (req, res) => {
-  const { id } = req.params;
-  const favorites = readDataFromFile();
 
-  const newFavorites = favorites.filter(f => f.id !== id);
+const removeFavoritePost = (userId, postId) => {
+  const favorites = readDataFromFile();
+  const newFavorites = favorites.filter(fav => !(fav.userId === userId && fav.postId === postId));
 
   if (favorites.length === newFavorites.length) {
-    return res.status(404).json({ message: 'Favorite not found' });
+    throw new Error('Favorite not found');
   }
 
   writeDataToFile(newFavorites);
-  res.status(200).json({ message: 'Post removed from favorites successfully' });
 };
 
 module.exports = {
-  addFavorite,
-  getFavorites,
-  removeFavorite,
+  addFavoritePost,
+  getFavoritePosts,
+  removeFavoritePost,
 };

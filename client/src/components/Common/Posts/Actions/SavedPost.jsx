@@ -1,70 +1,113 @@
 import React, { useEffect, useState } from "react";
-import { CiSaveDown2 } from "react-icons/ci";
+import { FiBookmark } from "react-icons/fi"; // Outline icon
+import { BsBookmarkFill } from "react-icons/bs"; // Filled icon
 import { Blog } from "../../../../Context/Context";
-import axios from 'axios';
+import axiosInstance from '../../../../axiosInstance'; // Import the correct axios instance
 import { toast } from "react-toastify";
 
-const SavedPost = ({ post }) => {
-  const [isSaved, setIsSaved] = useState(false);
-  const [savedPosts, setSavedPosts] = useState([]);
+const SavePost = ({ postId }) => {
+  const [isSaved, setIsSaved] = useState(false); // Renamed isSaved to isSaved for consistency
   const { currentUser, setAuthModel } = Blog();
+  const [userId, setUserId] = useState(null);
 
+  // Retrieve the token from local storage
+  const token = localStorage.getItem('authToken');
+
+  // Fetch user information using token
   useEffect(() => {
-    const fetchSavedPosts = async () => {
+    const fetchUser = async () => {
+      if (!token) {
+        console.error("No token found");
+        setUserId(null); // Ensure userId is reset
+        return;
+      }
+
       try {
-        if (currentUser) {
-          const response = await axios.get(`/api/users/${currentUser.uid}/savedPosts`);
-          const posts = response.data;
-          setSavedPosts(posts);
-          setIsSaved(posts.some((item) => item._id === post?._id)); // Match using `_id`
-        }
+        const response = await axiosInstance.get('/auth/me', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log("Fetched user info:", response.data);
+        setUserId(response.data.id); // Set user ID from response
       } catch (error) {
-        console.error("Error fetching saved posts:", error);
+        console.error("Error fetching user info:", error.response ? error.response.data : error.message);
+        setUserId(null); // Reset userId on error
       }
     };
 
-    fetchSavedPosts(); // Fetch saved posts on component mount or when currentUser changes
-  }, [currentUser, post?._id]); // Dependency array includes `currentUser` and `post?._id`
+    fetchUser();
+  }, [token]);
+
+  // Check if the current user has saved the post
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchSaves = async () => {
+      try {
+        console.log(`Fetching saves for postId: ${postId}`);
+        const response = await axiosInstance.get(`/favorites/${postId}/favorites`);
+        const saves = response.data;
+
+        // Check if the current user has already saved the post
+        const saved = saves.some((saved) => saved.userId === userId);
+        setIsSaved(saved);
+        console.log(`User ${userId} has saved this post: ${saved}`);
+      } catch (error) {
+        console.error("Error fetching saves:", error.response ? error.response.data : error.message);
+      }
+    };
+
+    fetchSaves();
+  }, [postId, userId]);
 
   const handleSave = async () => {
-    if (!currentUser) {
+    if (!userId) {
+      console.log("User is not authenticated, showing login modal.");
       setAuthModel(true);
       return;
     }
 
     try {
+      const url = `/favorites/${postId}/favorites`;
+      console.log(`Sending request to URL: ${url}`);
+      console.log(`Current User ID: ${userId}`);
+
+      const requestConfig = {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      };
+
       if (isSaved) {
-        // Unsaving the post
-        await axios.delete(`/api/users/${currentUser.uid}/savedPosts/${post._id}`);
-        toast.success("Post has been unsaved");
-      } else {
-        // Saving the post
-        await axios.post(`/api/users/${currentUser.uid}/savedPosts`, {
-          postId: post._id, // Match using `_id`
-          ...post,
+        console.log(`unSaving the post with postId: ${postId} by userId: ${userId}`);
+        await axiosInstance.delete(url, {
+          ...requestConfig,
+          data: { userId },
         });
-        toast.success("Post has been saved");
+      } else {
+        console.log(`Saving the post with postId: ${postId} by userId: ${userId}`);
+        await axiosInstance.post(url, {
+          userId,
+        }, requestConfig);
       }
 
-      // Refresh saved posts
-      const response = await axios.get(`/api/users/${currentUser.uid}/savedPosts`);
-      setSavedPosts(response.data);
-      setIsSaved(!isSaved); // Toggle the saved state
+      // Toggle the saved status
+      setIsSaved(!isSaved);
+      console.log(`Updated saved status: ${!isSaved}`);
     } catch (error) {
-      console.error("Error updating saved posts:", error);
-      toast.error("An error occurred while saving the post.");
+      console.error("Error updating saved status:", error.response ? error.response.data : error.message);
+      toast.error("Error updating saved status");
     }
   };
 
   return (
-    <div>
-      <button onClick={handleSave} className="hover:opacity-60">
-        <CiSaveDown2
-          className={`text-2xl pointer-event-none ${isSaved ? "text-yellow-600" : ""}`}
-        />
-      </button>
-    </div>
+<button onClick={handleSave} className="flex items-center gap-1 text-sm">
+      <FiBookmark
+        className={`text-xl ${isSaved ? "text-black" : "text-gray-500"}`}
+      />
+    </button>
   );
 };
 
-export default SavedPost;
+export default SavePost;

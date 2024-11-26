@@ -86,7 +86,7 @@ const SinglePost = () => {
                 <Comment />
               </div>
               <div className="flex items-center pt-2 gap-5">
-                {post && <SavedPost post={post} />}
+                <SavedPost postId={postId} />
                 <SharePost />
                 {currentUser && currentUser.userId === userId && (
                   <Actions postId={postId} title={title} content={content} userId={userId} />

@@ -1,3 +1,4 @@
+
 // import React, { useState, useEffect } from "react";
 // import { BsMedium } from "react-icons/bs";
 // import { CiSearch } from "react-icons/ci";
@@ -9,84 +10,41 @@
 // import Modal from "../../../utils/Modal";
 // import UserModal from "./UserModal";
 // import Loading from "../../Loading/Loading";
-// import { toast } from "react-toastify";
 // import { Blog } from "../../../Context/Context";
 
 // const HomeHeader = () => {
 //   const [modal, setModal] = useState(false);
 //   const [searchModal, setSearchModal] = useState(false);
-//   const [loading, setLoading] = useState(false);
-//   const [userData, setUserData] = useState(null);
-//   const [currentUser, setCurrentUser] = useState(null);
-//   const [title, setTitle] = useState(''); // Declare title
-//   const [description, setDescription] = useState(''); // Declare description
-
-//   const { publish, setPublish } = Blog();
-//   const { pathname } = useLocation();
-//   const editPath = pathname.split("/")[1];
-//   const postId = pathname.split("/")[2];
+//   const [loading, setLoading] = useState(true); // Initial loading state
+//   const [isAdmin, setIsAdmin] = useState(false); // Tracks admin status
+//   const { currentUser } = Blog(); // Fetch current user from Blog context
 //   const navigate = useNavigate();
+//   const { pathname } = useLocation();
 
-//   // Fetch current user data
-//   const fetchCurrentUser = async () => {
-//     try {
-//       const userId = currentUser?.id; 
-//       const response = await fetch(`/profile/${userId}`);
-//       const data = await response.json();
-//       setUserData(data);
-//     } catch (error) {
-//       console.error("Error fetching current user:", error);
-//     }
-//   };
-
-//   // Fetch post data for editing
-//   const fetchPostData = async () => {
-//     try {
-//       const response = await fetch(`/posts/${postId}`);
-//       const postData = await response.json();
-//       setTitle(postData.title || '');
-//       setDescription(postData.description || '');
-//     } catch (error) {
-//       console.error("Error fetching post data:", error);
-//     }
-//   };
-
-//   // Update post logic
-//   const handleEdit = async () => {
-//     try {
-//       setLoading(true);
-//       await fetch(`/posts/${postId}`, {
-//         method: "PUT",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({ title, description }),
-//       });
-//       navigate(`/posts/${postId}`);
-//       toast.success("Post has been updated");
-//     } catch (error) {
-//       console.error("Error updating post:", error);
-//       toast.error("Failed to update post");
-//     } finally {
+//   useEffect(() => {
+//     // Check if currentUser is loaded and set admin status
+//     if (currentUser) {
+//       setIsAdmin(currentUser.isAdmin || false);
 //       setLoading(false);
 //     }
+//   }, [currentUser]);
+
+//   // Function to navigate to Videos
+//   const goToVideos = () => {
+//     navigate("/videos");
 //   };
 
-//   // Fetch current user and post data when component mounts or currentUser changes
-//   useEffect(() => {
-//     if (currentUser?.id) {
-//       fetchCurrentUser();
-//     }
-//     if (postId) {
-//       fetchPostData();
-//     }
-//   }, [currentUser, postId]);
+//   // Function to navigate to Add Admin page
+//   const handleAddAdminClick = () => {
+//     navigate("/add-admin"); // Navigate to the add admin page
+//   };
+
+//   if (loading) return <Loading />; // Show loading indicator while checking currentUser
 
 //   return (
 //     <header className="border-b border-gray-200">
 //       <div className="size h-[60px] flex items-center justify-between">
-//         {loading && <Loading />}
-//         {/* left side  */}
+//         {/* Left Section: Logo and Search */}
 //         <div className="flex items-center gap-3">
 //           <Link to={"/"}>
 //             <span className="text-5xl">
@@ -95,45 +53,66 @@
 //           </Link>
 //           <Search modal={searchModal} setModal={setSearchModal} />
 //         </div>
-//         {/* right side  */}
+
+//         {/* Right Section: Buttons and Icons */}
 //         <div className="flex items-center gap-3 sm:gap-7">
+//           {/* Mobile Search Icon */}
 //           <span
 //             onClick={() => setSearchModal(true)}
-//             className="flex sm:hidden text-3xl text-gray-300 cursor-pointer">
+//             className="flex sm:hidden text-3xl text-gray-300 cursor-pointer"
+//           >
 //             <CiSearch />
 //           </span>
+
+//           {/* Navigate to Videos Button */}
+//           <button
+//             onClick={goToVideos}
+//             className="btn !bg-blue-500 !py-1 !text-white !rounded-full"
+//           >
+//             Vibes ⭐️
+//           </button>
+
+//           {/* Publish or Write Button */}
 //           {pathname === "/write" ? (
 //             <button
 //               onClick={() => setPublish(true)}
-//               className="btn !bg-green-700 !py-1 !text-white !rounded-full">
+//               className="btn !bg-green-700 !py-1 !text-white !rounded-full"
+//             >
 //               Publish
-//             </button>
-//           ) : editPath === "editPost" ? (
-//             <button
-//               onClick={handleEdit}
-//               className={`btn !bg-green-700 !py-1 !text-white !rounded-full ${
-//                 loading ? "opacity-40" : ""
-//               }`}>
-//               {loading ? "Updating..." : "Save and Update"}
 //             </button>
 //           ) : (
 //             <Link
 //               to="/write"
-//               className="hidden md:flex items-center gap-1 text-gray-500">
+//               className="hidden md:flex items-center gap-1 text-gray-500"
+//             >
 //               <span className="text-3xl">
 //                 <LiaEditSolid />
 //               </span>
 //               <span className="text-sm mt-2">Write</span>
 //             </Link>
 //           )}
+
+//           {/* Add Admin Button for Admin Users */}
+//           {isAdmin && (
+//             <button
+//               onClick={handleAddAdminClick}
+//               className="btn !bg-purple-600 !text-white !rounded-full"
+//             >
+//               Add Admin
+//             </button>
+//           )}
+
+//           {/* Notifications Icon */}
 //           <span className="text-3xl text-gray-500 cursor-pointer">
 //             <IoMdNotificationsOutline />
 //           </span>
+
+//           {/* Profile Section */}
 //           <div className="flex items-center relative">
 //             <img
 //               onClick={() => setModal(true)}
 //               className="w-[2.3rem] h-[2.3rem] object-cover rounded-full cursor-pointer"
-//               src={userData?.userImg || "/profile.jpg"}
+//               src={currentUser?.userImg || "/profile.jpg"}
 //               alt="profile-img"
 //             />
 //             <span className="text-gray-500 cursor-pointer">
@@ -143,7 +122,8 @@
 //               <div
 //                 className={`${
 //                   modal ? "visible opacity-100" : "invisible opacity-0"
-//                 } transition-all duration-100`}>
+//                 } transition-all duration-100`}
+//               >
 //                 <UserModal setModal={setModal} />
 //               </div>
 //             </Modal>
@@ -166,67 +146,43 @@ import Search from "./Search";
 import Modal from "../../../utils/Modal";
 import UserModal from "./UserModal";
 import Loading from "../../Loading/Loading";
-import { toast } from "react-toastify";
 import { Blog } from "../../../Context/Context";
 
 const HomeHeader = () => {
   const [modal, setModal] = useState(false);
   const [searchModal, setSearchModal] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-
-  const { publish, setPublish } = Blog();
-  const { pathname } = useLocation();
-  const editPath = pathname.split("/")[1];
-  const postId = pathname.split("/")[2];
+  const [loading, setLoading] = useState(true); // Set loading state initially true
+  const { currentUser, setPublish } = Blog(); // Fetch currentUser and setPublish from Blog context
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
-  // Function to navigate to videos section
+  useEffect(() => {
+    if (currentUser) {
+      setLoading(false); // Stop the loading once currentUser data is fetched
+    }
+  }, [currentUser]); // This will run whenever currentUser changes
+
   const goToVideos = () => {
     navigate("/videos");
   };
 
-  // Fetch current user data
-  const fetchCurrentUser = async () => {
-    try {
-      const userId = currentUser?.id; 
-      const response = await fetch(`/profile/${userId}`);
-      const data = await response.json();
-      setUserData(data);
-    } catch (error) {
-      console.error("Error fetching current user:", error);
-    }
+  const handleAddAdminClick = () => {
+    navigate("/add-admin");
   };
 
-  // Fetch post data for editing
-  const fetchPostData = async () => {
-    try {
-      const response = await fetch(`/posts/${postId}`);
-      const postData = await response.json();
-      setTitle(postData.title || '');
-      setDescription(postData.description || '');
-    } catch (error) {
-      console.error("Error fetching post data:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (currentUser?.id) {
-      fetchCurrentUser();
-    }
-    if (postId) {
-      fetchPostData();
-    }
-  }, [currentUser, postId]);
+  // Show loader while currentUser is loading
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loading />
+      </div>
+    );
+  }
 
   return (
     <header className="border-b border-gray-200">
       <div className="size h-[60px] flex items-center justify-between">
-        {loading && <Loading />}
-        
+        {/* Left Section: Logo and Search */}
         <div className="flex items-center gap-3">
           <Link to={"/"}>
             <span className="text-5xl">
@@ -236,53 +192,60 @@ const HomeHeader = () => {
           <Search modal={searchModal} setModal={setSearchModal} />
         </div>
 
+        {/* Right Section: Buttons and Icons */}
         <div className="flex items-center gap-3 sm:gap-7">
           <span
             onClick={() => setSearchModal(true)}
-            className="flex sm:hidden text-3xl text-gray-300 cursor-pointer">
+            className="flex sm:hidden text-3xl text-gray-300 cursor-pointer"
+          >
             <CiSearch />
           </span>
 
-          {/* Navigate to Videos Button */}
           <button
             onClick={goToVideos}
-            className="btn !bg-blue-500 !py-1 !text-white !rounded-full">
+            className="btn !bg-blue-500 !py-1 !text-white !rounded-full"
+          >
             Vibes ⭐️
           </button>
 
           {pathname === "/write" ? (
             <button
-              onClick={() => setPublish(true)}
-              className="btn !bg-green-700 !py-1 !text-white !rounded-full">
+              onClick={() => setPublish(true)} // Trigger the publish logic when on "/write" page
+              className="btn !bg-green-700 !py-1 !text-white !rounded-full"
+            >
               Publish
-            </button>
-          ) : editPath === "editPost" ? (
-            <button
-              onClick={handleEdit}
-              className={`btn !bg-green-700 !py-1 !text-white !rounded-full ${
-                loading ? "opacity-40" : ""
-              }`}>
-              {loading ? "Updating..." : "Save and Update"}
             </button>
           ) : (
             <Link
               to="/write"
-              className="hidden md:flex items-center gap-1 text-gray-500">
+              className="hidden md:flex items-center gap-1 text-gray-500"
+            >
               <span className="text-3xl">
                 <LiaEditSolid />
               </span>
               <span className="text-sm mt-2">Write</span>
             </Link>
           )}
-          
+
+          {/* Add Admin Button for Admin Users */}
+          {currentUser?.isAdmin && (
+            <button
+              onClick={handleAddAdminClick}
+              className="btn !bg-purple-600 !text-white !rounded-full"
+            >
+              Add Admin
+            </button>
+          )}
+
           <span className="text-3xl text-gray-500 cursor-pointer">
             <IoMdNotificationsOutline />
           </span>
+
           <div className="flex items-center relative">
             <img
               onClick={() => setModal(true)}
               className="w-[2.3rem] h-[2.3rem] object-cover rounded-full cursor-pointer"
-              src={userData?.userImg || "/profile.jpg"}
+              src={currentUser?.userImg || "/profile.jpg"}
               alt="profile-img"
             />
             <span className="text-gray-500 cursor-pointer">
@@ -292,7 +255,8 @@ const HomeHeader = () => {
               <div
                 className={`${
                   modal ? "visible opacity-100" : "invisible opacity-0"
-                } transition-all duration-100`}>
+                } transition-all duration-100`}
+              >
                 <UserModal setModal={setModal} />
               </div>
             </Modal>

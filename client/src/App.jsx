@@ -58,6 +58,7 @@ import Write from "./components/Home/Write/Write";
 import SinglePost from "./components/Common/Posts/SinglePost";
 import EditPost from "./components/Common/Posts/EditPost";
 import FilterPost from "./components/Demo/FilterPost";
+import AddAdmin from "./components/Home/Header/AddAdmin";
 
 function App() {
   const { currentUser, loading } = Blog();
@@ -85,7 +86,7 @@ function App() {
           }
         }, 500); // Adjust the delay as necessary
       };
-      // document.body.appendChild(botpressScript);
+      //document.body.appendChild(botpressScript);
     }
   
     const customScript = document.createElement("script");
@@ -130,6 +131,7 @@ function App() {
         <Route path="/posts/:postId" element={<SinglePost />} />
         <Route path="/editPost/:postId" element={currentUser ? <EditPost /> : <Navigate to="/demo" />} />
         <Route path="/filter/:tag" element={<FilterPost />} />
+        <Route path="/add-admin" element={<AddAdmin />} />
         <Route path="*" element={<Navigate to={currentUser ? "/" : "/demo"} />} />
       </Routes>
     </>

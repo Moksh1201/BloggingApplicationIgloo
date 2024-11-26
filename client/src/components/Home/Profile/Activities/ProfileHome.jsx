@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { Blog } from "../../../../Context/Context";
+import axiosInstance from "../../../../axiosInstance"; // Import your axiosInstance
 import PostsCard from "../../../Common/Posts/PostsCard";
+
 const ProfileHome = () => {
   const { currentUser, postData, postLoading } = Blog();
   const [userPosts, setUserPosts] = useState([]);
@@ -12,21 +13,18 @@ const ProfileHome = () => {
       try {
         setLoading(true);
 
-        if (!currentUser || !currentUser.id || !currentUser.token) {
+        if (!currentUser || !currentUser.username) {
           console.error('Current user not found or incomplete data');
           return;
         }
 
-        const token = currentUser.token;
+        const username = currentUser.username;  // Use username from currentUser
 
-        const response = await axios.get("/posts", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        // Fetch posts for the current user from the API endpoint
+        const response = await axiosInstance.get(`/posts/user/${username}`);
 
-        const filteredPosts = response.data.filter(post => post.userId === currentUser.id);
-        setUserPosts(filteredPosts);
+        // Assuming the posts are returned in the response, no need to filter here
+        setUserPosts(response.data);
 
       } catch (error) {
         console.error('Error fetching posts:', error);
@@ -50,7 +48,7 @@ const ProfileHome = () => {
     <div className="profile-home">
       <h2 className="heading">User Posts</h2>
       {userPosts.map(post => (
-        <PostsCard key={post._id} post={post} />
+        <PostsCard key={post._id} post={post} /> 
       ))}
     </div>
   );
