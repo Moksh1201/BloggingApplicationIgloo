@@ -171,7 +171,7 @@ router.get('/:postId/likes', async (req, res, next) => {
 });
 
 // Route to get posts by title
-router.get('/search/title/:title', async (req, res, next) => {
+router.get('/search/title/:title', authenticate, async (req, res, next) => {
   try {
     const { title } = req.params;
     const posts = await readJSONFile(postsFilePath);
@@ -184,7 +184,7 @@ router.get('/search/title/:title', async (req, res, next) => {
 });
 
 // Route to get posts by tag
-router.get('/search/tag/:tag', async (req, res, next) => {
+router.get('/search/tag/:tag', authenticate, async (req, res, next) => {
   try {
     const { tag } = req.params;
     const posts = await readJSONFile(postsFilePath);

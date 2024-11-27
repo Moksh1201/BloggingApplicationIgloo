@@ -18,7 +18,6 @@
 // const SinglePost = () => {
 //   const { postId } = useParams();
 //   const [post, setPost] = useState(null);
-//   const [image, setImage] = useState(null);
 //   const [loading, setLoading] = useState(false);
 //   const { currentUser } = Blog();
 //   const navigate = useNavigate();
@@ -29,12 +28,8 @@
 //       try {
 //         const response = await axiosInstance.get(`/posts/${postId}`);
 //         const postData = response.data;
-//         console.log('Post Data:', postData);
-
-//         if (postData.image) {
-//           console.log('Raw Image Data:', postData.image);
-//           setImage(postData.image);
-//         }
+//         console.log('Post Data:', postData);  // Log entire post data
+        
 //         setPost(postData);
 //         setLoading(false);
 //       } catch (error) {
@@ -47,10 +42,15 @@
 //     fetchPost();
 //   }, [postId]);
 
-//   const { title, content, updatedAt, userId } = post || {};
+//   const { title, content, updatedAt, userId, images } = post || {};
 
-//   console.log('Post Content:', content);
-//   console.log('Post Title:', title);
+//   const getImageUrl = (imagePath) => {
+//     // Construct the full URL for the image
+//     if (imagePath) {
+//       return `http://localhost:5001${imagePath}`;
+//     }
+//     return '/default-image.png'; // Fallback image
+//   };
 
 //   return (
 //     <>
@@ -64,7 +64,7 @@
 //               <img
 //                 onClick={() => navigate(`/profile/${userId}`)}
 //                 className="w-[3rem] h-[3rem] object-cover rounded-full cursor-pointer"
-//                 src={image} 
+//                 src={getImageUrl(images && images[0])}  // Use the constructed image URL (check for images array)
 //                 alt="user-img"
 //               />
 //               <div>
@@ -94,14 +94,19 @@
 //               </div>
 //             </div>
 //             <div className="mt-[3rem]">
-//               {image ? (
-//                 <img
-//                   className="w-full h-[400px] object-cover"
-//                   src={image}
-//                   alt="post-img"
-//                 />
+//               {images && images.length > 0 ? (
+//                 <div className="space-y-4">
+//                   {images.map((image, index) => (
+//                     <img
+//                       key={index}
+//                       className="w-full h-[300px] object-contain rounded-xl shadow-lg mb-6 transition-transform duration-300 ease-in-out hover:scale-105"
+//                       src={getImageUrl(image)}
+//                       alt={`post-img-${index}`}
+//                     />
+//                   ))}
+//                 </div>
 //               ) : (
-//                 <p>No image available for this post.</p>
+//                 <p>No images available for this post.</p>
 //               )}
 //               <div
 //                 className="mt-6"
@@ -118,7 +123,6 @@
 // };
 
 // export default SinglePost;
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -163,7 +167,7 @@ const SinglePost = () => {
     fetchPost();
   }, [postId]);
 
-  const { title, content, updatedAt, userId, images } = post || {};
+  const { title, content, updatedAt, userId, images, userProfileImage } = post || {};
 
   const getImageUrl = (imagePath) => {
     // Construct the full URL for the image
@@ -185,7 +189,7 @@ const SinglePost = () => {
               <img
                 onClick={() => navigate(`/profile/${userId}`)}
                 className="w-[3rem] h-[3rem] object-cover rounded-full cursor-pointer"
-                src={getImageUrl(images && images[0])}  // Use the constructed image URL (check for images array)
+                src={getImageUrl(userProfileImage)}  // Use the correct profile image URL
                 alt="user-img"
               />
               <div>
