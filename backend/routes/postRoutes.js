@@ -53,8 +53,8 @@ router.post(
   '/',
   authenticate,
   (req, res, next) => {
-    upload.single('images',5)(req, res, (err) => {
-      console.log("Received request:", req.body, req.file); // Add this line
+    upload.array('images', 5)(req, res, (err) => {  
+      console.log("Received request:", req.body, req.files); 
       if (err) {
         if (err instanceof multer.MulterError) {
           return res.status(400).send(`Multer error: ${err.message}`);
@@ -62,10 +62,11 @@ router.post(
         return res.status(400).send(`Error: ${err.message}`);
       }
       next();
-    });    
+    });
   },
   createPost
 );
+
 
 
 // Route to get all posts
