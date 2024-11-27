@@ -2,12 +2,33 @@
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const { readJSONFile, writeJSONFile } = require('../utils/fileUtils');
-
+const multer = require('multer');
 // File paths
 const postsFilePath = path.join(__dirname, '../data/posts.json');
 const commentsFilePath = path.join(__dirname, '../data/comments.json');
 const likesFilePath = path.join(__dirname, '../data/likes.json');
 const usersFilePath = './data/users.json';
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'));
+    }
+  },
+});
 
 // Controller functions
 const getPosts = async (req, res, next) => {
@@ -35,34 +56,50 @@ const createPost = async (req, res, next) => {
   try {
     const { userId, content, title, tags } = req.body;
 
+    // Validate required fields
     if (!userId || !content || !title) {
       return res.status(400).json({ error: 'userId, content, and title are required' });
     }
 
+    // Debugging: Check if files are received
+    console.log('Received files:', req.files);
+
+    // Read existing posts
     const posts = await readJSONFile(postsFilePath);
 
-    // Process images (multiple images support)
-    const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
+    // Validate and map uploaded files to their paths
+    const images = req.files && req.files.length > 0
+      ? req.files.map(file => `/uploads/${file.filename}`)
+      : [];
 
+    console.log('Image paths:', images); // Debugging image paths
+
+    // Create new post object
     const newPost = {
       _id: uuidv4(),
       userId,
       content,
       title,
       tags: tags || '',
-      images, // Store multiple images
+      images, // Store image paths
+      createdAt: new Date(),
       updatedAt: new Date(),
     };
 
+    // Add new post to the posts array
     posts.push(newPost);
+
+    // Write updated posts array back to the JSON file
     await writeJSONFile(postsFilePath, posts);
 
+    // Respond with the newly created post
     res.status(201).json(newPost);
   } catch (err) {
-    console.error("Error in createPost:", err);
+    console.error("Error creating post:", err);
     next(err);
   }
 };
+
 
 const updatePost = async (req, res, next) => {
   try {

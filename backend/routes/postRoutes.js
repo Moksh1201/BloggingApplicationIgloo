@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require('multer');
 const { readJSONFile, writeJSONFile } = require('../utils/fileUtils');
 const {
   getPosts,
@@ -15,8 +16,8 @@ const {
   updateComment,
 } = require('../controllers/postController');
 const authenticate = require('../middleware/authMiddleware');
-const path = require('path'); // Import path module
-const uuidv4 = require('uuid').v4; // Import uuid
+const path = require('path'); 
+const uuidv4 = require('uuid').v4; 
 
 // File paths
 const postsFilePath = path.join(__dirname, '../data/posts.json');
@@ -24,6 +25,14 @@ const commentsFilePath = path.join(__dirname, '../data/comments.json');
 const likesFilePath = path.join(__dirname, '../data/likes.json');
 
 const router = express.Router();
+
+const storage = multer.diskStorage({
+  destination: 'uploads/',
+  filename: (req, file, cb) => {
+    cb(null, `${uuidv4()}-${file.originalname}`);
+  },
+});
+const upload = multer({ storage });
 
 // Route to get a post by ID
 router.get('/:postId', async (req, res, next) => {
@@ -40,8 +49,24 @@ router.get('/:postId', async (req, res, next) => {
   }
 });
 
-// Route to create a new post
-router.post('/', authenticate, createPost);
+router.post(
+  '/',
+  authenticate,
+  (req, res, next) => {
+    upload.single('images',5)(req, res, (err) => {
+      console.log("Received request:", req.body, req.file); // Add this line
+      if (err) {
+        if (err instanceof multer.MulterError) {
+          return res.status(400).send(`Multer error: ${err.message}`);
+        }
+        return res.status(400).send(`Error: ${err.message}`);
+      }
+      next();
+    });    
+  },
+  createPost
+);
+
 
 // Route to get all posts
 router.get('/', getPosts);

@@ -71,5 +71,45 @@
     "tags": "Technology, JavaScript",
     "images": [],
     "updatedAt": "2024-11-25T22:05:59.097Z"
+  },
+  {
+    "_id": "aa5ce0a2-a4ef-4c23-8b5a-e2c61142164a",
+    "userId": "Admin1234",
+    "content": "<p>Throughout the 1980s and 1990s, the “Queen of All Media” built a brand that stretched far beyond the television screen. She went on to become a billionaire, a well-regarded philanthropist, and a recipient of the Presidential Medal of Freedom. And as she was busy working toward these otherworldly accomplishments, Oprah relied on a simple habit: journaling.</p><p>Journaling is simply the act of thinking about your life and writing it down. That’s it. Nothing more is needed. But despite its simplicity, the daily journal has played a key role in the careers of many prolific people.</p><p>As you might expect, journaling is a favorite habit of many writers. From Mark Twain to Virginia Woolf, Francis Bacon to Joan Didion, John Cheever to Vladimir Nabokov.&nbsp;A journal was rarely far from any of these artists. Susan Sontag once claimed that her journal was where she “created herself.”</p><p>Journaling has been utilized by scores of brilliant thinkers and inventors. Charles Darwin. Marie Curie. Leonardo da Vinci. Thomas Edison. Albert Einstein.&nbsp;Similarly, leaders and politicians throughout history have kept journals in one form or another. People like George Washington, Winston Churchill, and Marcus Aurelius.In the sporting world, athletes like Katie Ledecky, winner of multiple gold medals, and Eliud Kipchoge, the world record holder in the marathon, rely on journals to reflect on their daily workouts and improve their training.</p>",
+    "title": "The Surprising Benefits of Journaling One Sentence Every Day",
+    "tags": "Travel, Study",
+    "images": [],
+    "createdAt": "2024-11-26T23:52:10.161Z",
+    "updatedAt": "2024-11-26T23:52:10.161Z"
+  },
+  {
+    "_id": "a9663fcf-6169-427e-b255-2ff0945f8abb",
+    "userId": "Madaan",
+    "content": "This is the content of the first pos",
+    "title": "Post1",
+    "tags": "",
+    "images": [],
+    "createdAt": "2024-11-27T09:10:47.082Z",
+    "updatedAt": "2024-11-27T09:10:47.082Z"
+  },
+  {
+    "_id": "7c6a6d11-ee99-4cb3-ae18-22d5498c7bdf",
+    "userId": "Madaan",
+    "content": "This is the content of the first pos",
+    "title": "Post1",
+    "tags": "",
+    "images": [],
+    "createdAt": "2024-11-27T09:16:06.640Z",
+    "updatedAt": "2024-11-27T09:16:06.640Z"
+  },
+  {
+    "_id": "7538ba09-cdd7-4b1d-b5c6-ddddc17824d6",
+    "userId": "Madaan",
+    "content": "This is the content of the first pos",
+    "title": "Post1",
+    "tags": "",
+    "images": [],
+    "createdAt": "2024-11-27T09:17:41.971Z",
+    "updatedAt": "2024-11-27T09:17:41.971Z"
   }
 ]
