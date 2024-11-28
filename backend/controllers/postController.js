@@ -1,9 +1,7 @@
-
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const { readJSONFile, writeJSONFile } = require('../utils/fileUtils');
 const multer = require('multer');
-// File paths
 const postsFilePath = path.join(__dirname, '../data/posts.json');
 const commentsFilePath = path.join(__dirname, '../data/comments.json');
 const likesFilePath = path.join(__dirname, '../data/likes.json');
@@ -56,43 +54,35 @@ const createPost = async (req, res, next) => {
   try {
     const { userId, content, title, tags } = req.body;
 
-    // Validate required fields
     if (!userId || !content || !title) {
       return res.status(400).json({ error: 'userId, content, and title are required' });
     }
 
-    // Debugging: Check if files are received
     console.log('Received files:', req.files);
 
-    // Read existing posts
     const posts = await readJSONFile(postsFilePath);
 
-    // Validate and map uploaded files to their paths (handle multiple files)
     const images = req.files && req.files.length > 0
       ? req.files.map(file => `/uploads/${file.filename}`)
       : [];
 
-    console.log('Image paths:', images); // Debugging image paths
+    console.log('Image paths:', images); 
 
-    // Create new post object
     const newPost = {
       _id: uuidv4(),
       userId,
       content,
       title,
       tags: tags || '',
-      images, // Store image paths for multiple images
+      images, 
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    // Add new post to the posts array
     posts.push(newPost);
 
-    // Write updated posts array back to the JSON file
     await writeJSONFile(postsFilePath, posts);
 
-    // Respond with the newly created post
     res.status(201).json(newPost);
   } catch (err) {
     console.error("Error creating post:", err);
@@ -112,7 +102,6 @@ const updatePost = async (req, res, next) => {
 
     if (postIndex === -1) return res.status(404).json({ error: "Post not found" });
 
-    // Update images (if provided)
     const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : posts[postIndex].images;
 
     posts[postIndex] = {
@@ -145,46 +134,7 @@ const deletePost = async (req, res, next) => {
   }
 };
 
-// const addComment = async (req, res, next) => {
-//   try {
-//     const { postId } = req.params;
-//     const { content, parentCommentId } = req.body;
-//     const userId = req.user?.id;
 
-//     if (!userId || !content) {
-//       return res.status(400).json({ error: 'userId and content are required' });
-//     }
-
-//     const comments = await readJSONFile(commentsFilePath);
-
-//     const newComment = {
-//       _id: uuidv4(),
-//       postId,
-//       userId,
-//       content,
-//       parentCommentId: parentCommentId || null,
-//       createdAt: new Date(),
-//       replies: [], // Initialize for replies
-//     };
-
-//       if (parentCommentId) {
-//       const parentComment = comments.find((c) => c._id === parentCommentId);
-//       if (!parentComment) {
-//         return res.status(404).json({ error: 'Parent comment not found' });
-//       }
-//       const newReply = { ...newComment, _id: uuidv4() };
-//       parentComment.replies.unshift(newReply);
-//     } else {
-//       comments.unshift(newComment);
-//     }
-    
-
-//     await writeJSONFile(commentsFilePath, comments);
-//     res.status(201).json(newComment);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
 const addComment = async (req, res, next) => {
   try {
     const { postId } = req.params;
@@ -195,7 +145,6 @@ const addComment = async (req, res, next) => {
       return res.status(400).json({ error: 'userId and content are required' });
     }
 
-    // Fetch users to get the username
     const users = await readJSONFile(usersFilePath);
     const user = users.find((u) => u.id === userId);
 
@@ -205,19 +154,17 @@ const addComment = async (req, res, next) => {
 
     const comments = await readJSONFile(commentsFilePath);
 
-    // Create a new comment with username included
     const newComment = {
       _id: uuidv4(),
       postId,
       userId,
-      username: user.username, // Include username
+      username: user.username, 
       content,
       parentCommentId: parentCommentId || null,
       createdAt: new Date(),
-      replies: [], // Initialize for replies
+      replies: [], 
     };
 
-    // Handle parent comment (replies)
     if (parentCommentId) {
       const parentComment = comments.find((c) => c._id === parentCommentId);
       if (!parentComment) {
@@ -229,7 +176,6 @@ const addComment = async (req, res, next) => {
       comments.unshift(newComment);
     }
 
-    // Save updated comments
     await writeJSONFile(commentsFilePath, comments);
 
     res.status(201).json(newComment);
