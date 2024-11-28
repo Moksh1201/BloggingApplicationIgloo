@@ -225,11 +225,10 @@ const Preview = ({ setPublish, description, title }) => {
     title: title || "",
     photos: [],
   });
-  const { currentUser } = Blog(); // Assumes currentUser contains username
+  const { currentUser } = Blog(); 
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  // Handle image file input (multiple files)
   const handleImageChange = async (e) => {
     const selectedFiles = e.target.files;
     const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
@@ -239,25 +238,24 @@ const Preview = ({ setPublish, description, title }) => {
     Array.from(selectedFiles).forEach((file) => {
       if (validImageTypes.includes(file.type)) {
         validFiles.push(file);
-        validImageUrls.push(URL.createObjectURL(file)); // Preview URL
+        validImageUrls.push(URL.createObjectURL(file)); 
       } else {
         toast.error("Please select valid image files (JPEG, PNG, or GIF).");
       }
     });
 
     setImageUrls((prevUrls) => [...prevUrls, ...validImageUrls]);
-    setFiles((prevFiles) => [...prevFiles, ...validFiles]); // Store the files to be uploaded
+    setFiles((prevFiles) => [...prevFiles, ...validFiles]); 
     setPreview({ ...preview, photos: [...preview.photos, ...validFiles] });
   };
 
-  // Function to handle tag addition
+
   const handleAddTag = (tag) => {
     if (tag && !tags.includes(tag)) {
       setTags([...tags, tag]);
     }
   };
 
-  // Function to remove a tag
   const handleRemoveTag = (tagToRemove) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
@@ -277,7 +275,6 @@ const Preview = ({ setPublish, description, title }) => {
         return;
       }
 
-      // Prepare the form data (for multiple files)
       const formData = new FormData();
       formData.append("userId", currentUser.username);
       formData.append("title", preview.title);
@@ -285,7 +282,7 @@ const Preview = ({ setPublish, description, title }) => {
       formData.append("tags", tags.join(", "));
 
       files.forEach((file, index) => {
-        formData.append("images", file); // Append each image file
+        formData.append("images", file); 
       });
 
       const token = localStorage.getItem("authToken");
@@ -306,7 +303,7 @@ const Preview = ({ setPublish, description, title }) => {
       setPreview({ title: "", photos: [] });
       setTags([]);
       setFiles([]);
-      setImageUrls([]); // Clear the image previews
+      setImageUrls([]); 
     } catch (error) {
       console.error("Error while publishing post:", error);
       toast.error(`Error: ${error.message}`);
@@ -390,7 +387,7 @@ const Preview = ({ setPublish, description, title }) => {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     handleAddTag(e.target.value);
-                    e.target.value = ""; // Clear input after adding
+                    e.target.value = ""; 
                   }
                 }}
               />

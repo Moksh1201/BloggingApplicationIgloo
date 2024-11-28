@@ -1,3 +1,4 @@
+
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const { readJSONFile, writeJSONFile } = require('../utils/fileUtils');
@@ -143,6 +144,47 @@ const deletePost = async (req, res, next) => {
     next(err);
   }
 };
+
+// const addComment = async (req, res, next) => {
+//   try {
+//     const { postId } = req.params;
+//     const { content, parentCommentId } = req.body;
+//     const userId = req.user?.id;
+
+//     if (!userId || !content) {
+//       return res.status(400).json({ error: 'userId and content are required' });
+//     }
+
+//     const comments = await readJSONFile(commentsFilePath);
+
+//     const newComment = {
+//       _id: uuidv4(),
+//       postId,
+//       userId,
+//       content,
+//       parentCommentId: parentCommentId || null,
+//       createdAt: new Date(),
+//       replies: [], // Initialize for replies
+//     };
+
+//       if (parentCommentId) {
+//       const parentComment = comments.find((c) => c._id === parentCommentId);
+//       if (!parentComment) {
+//         return res.status(404).json({ error: 'Parent comment not found' });
+//       }
+//       const newReply = { ...newComment, _id: uuidv4() };
+//       parentComment.replies.unshift(newReply);
+//     } else {
+//       comments.unshift(newComment);
+//     }
+    
+
+//     await writeJSONFile(commentsFilePath, comments);
+//     res.status(201).json(newComment);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 const addComment = async (req, res, next) => {
   try {
     const { postId } = req.params;

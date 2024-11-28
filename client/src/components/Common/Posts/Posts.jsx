@@ -66,7 +66,7 @@ const Posts = () => {
         const response = await axios.get("/posts");
         console.log("Fetched posts:", response.data);
         setPosts(response.data);
-        setFilteredPosts(response.data); // Set filtered posts initially as all posts
+        setFilteredPosts(response.data); 
       } catch (error) {
         console.error("Error fetching posts:", error);
       } finally {
