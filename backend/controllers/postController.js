@@ -237,7 +237,6 @@ const removeComment = async (req, res, next) => {
 
     const [removedComment] = comments.splice(commentIndex, 1);
 
-    // Recursively remove nested replies
     const deleteNestedReplies = (parentId) => {
       comments = comments.filter(c => {
         if (c.parentCommentId === parentId) {

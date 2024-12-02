@@ -10,24 +10,42 @@ import Write from "./components/Home/Write/Write";
 import SinglePost from "./components/Common/Posts/SinglePost";
 import EditPost from "./components/Common/Posts/EditPost";
 import FilterPost from "./components/Demo/FilterPost";
+import DeleteUser from "./components/Home/Header/DeleteUser";
+
+import AdminPosts from "./components/Home/Header/AdminPosts";
+import AddAdmin from "./components/Home/Header/AddAdmin";
+import Vibes from "./components/Common/ShortVideos/Vibes";
+
+
+
 
 function App() {
   const { currentUser, loading } = Blog();
 
   useEffect(() => {
-    console.log("Current User:", currentUser);
+    console.log("Current User:", currentUser );
     console.log("Loading State:", loading);
-  }, [currentUser, loading]);
+  }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // Placeholder for loading screen
+    return <div>Loading...</div>;
   }
 
   return (
     <>
       {currentUser ? <HomeHeader /> : <DemoHeader />}
+      {/* Persistent Chatbot Widget */}
+      <div
+        id="bp-web-widget"
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          zIndex: "1000",
+        }}
+      />
       <Routes>
-        {/* Redirect based on user authentication */}
+        {/* Routes */}
         <Route
           path="/"
           element={currentUser ? <Home /> : <Navigate to="/login" />}
@@ -38,7 +56,12 @@ function App() {
         <Route path="/posts/:postId" element={<SinglePost />} />
         <Route path="/editPost/:postId" element={currentUser ? <EditPost /> : <Navigate to="/demo" />} />
         <Route path="/filter/:tag" element={<FilterPost />} />
-        {/* Fallback for unknown routes */}
+        <Route path="/add-admin" element={<AddAdmin />} />
+        <Route path="/admin-posts" element={<AdminPosts />} />
+        <Route path="/delete-users" element={<DeleteUser />} />
+        <Route path="/Videos" element={<Vibes />} />
+
+
         <Route path="*" element={<Navigate to={currentUser ? "/" : "/demo"} />} />
       </Routes>
     </>
