@@ -79,7 +79,7 @@ router.post('/register', validateRegister, async (req, res) => {
 
 // Route to fetch the profile of the logged-in user
 router.get('/me', authenticate, async (req, res) => {
-  console.log("Fetching profile for user ID:", req.user?.id); // Add this log to check the user ID
+  console.log("Fetching profile for user ID:", req.user?.id); 
   try {
     const userId = req.user.id;
     const profile = await profileController.getProfile(userId);

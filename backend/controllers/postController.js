@@ -1,11 +1,9 @@
 const { v4: uuidv4 } = require('uuid');
-const path = require('path');
-const { readJSONFile, writeJSONFile } = require('../utils/fileUtils');
 const multer = require('multer');
-const postsFilePath = path.join(__dirname, '../data/posts.json');
-const commentsFilePath = path.join(__dirname, '../data/comments.json');
-const likesFilePath = path.join(__dirname, '../data/likes.json');
-const usersFilePath = './data/users.json';
+const Post = require('../models/Post');
+const Comment = require('../models/comment');
+const Like = require('../models/like');
+const User = require('../models/user'); 
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -29,9 +27,10 @@ const upload = multer({
 });
 
 // Controller functions
+
 const getPosts = async (req, res, next) => {
   try {
-    const posts = await readJSONFile(postsFilePath);
+    const posts = await Post.find().populate('userId', 'username');
     res.json(posts);
   } catch (err) {
     next(err);
@@ -41,10 +40,23 @@ const getPosts = async (req, res, next) => {
 const getPost = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const posts = await readJSONFile(postsFilePath);
-    const post = posts.find(p => p._id === postId);
+    const post = await Post.findById(postId).populate('userId', 'username');
     if (!post) return res.status(404).json({ error: "Post not found" });
     res.json(post);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Get posts by userId
+const getPostsByUserId = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const posts = await Post.find({ userId }).populate('userId', 'username');
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ error: 'No posts found for this user' });
+    }
+    res.json(posts);
   } catch (err) {
     next(err);
   }
@@ -58,63 +70,47 @@ const createPost = async (req, res, next) => {
       return res.status(400).json({ error: 'userId, content, and title are required' });
     }
 
-    console.log('Received files:', req.files);
-
-    const posts = await readJSONFile(postsFilePath);
-
     const images = req.files && req.files.length > 0
       ? req.files.map(file => `/uploads/${file.filename}`)
       : [];
 
-    console.log('Image paths:', images); 
-
-    const newPost = {
-      _id: uuidv4(),
+    const newPost = new Post({
       userId,
       content,
       title,
-      tags: tags || '',
-      images, 
+      tags: tags || [],
+      images,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
+    });
 
-    posts.push(newPost);
-
-    await writeJSONFile(postsFilePath, posts);
+    await newPost.save();
 
     res.status(201).json(newPost);
   } catch (err) {
-    console.error("Error creating post:", err);
+    console.error('Error creating post:', err);
     next(err);
   }
 };
-
-
 
 const updatePost = async (req, res, next) => {
   try {
     const { postId } = req.params;
     const { content, title, tags } = req.body;
 
-    const posts = await readJSONFile(postsFilePath);
-    const postIndex = posts.findIndex(p => p._id === postId);
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ error: "Post not found" });
 
-    if (postIndex === -1) return res.status(404).json({ error: "Post not found" });
+    const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : post.images;
 
-    const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : posts[postIndex].images;
+    post.content = content || post.content;
+    post.title = title || post.title;
+    post.tags = tags || post.tags;
+    post.images = images;
+    post.updatedAt = new Date();
 
-    posts[postIndex] = {
-      ...posts[postIndex],
-      content,
-      title: title || posts[postIndex].title,
-      tags: tags || posts[postIndex].tags,
-      images,
-      updatedAt: new Date(),
-    };
-
-    await writeJSONFile(postsFilePath, posts);
-    res.json(posts[postIndex]);
+    await post.save();
+    res.json(post);
   } catch (err) {
     next(err);
   }
@@ -123,11 +119,8 @@ const updatePost = async (req, res, next) => {
 const deletePost = async (req, res, next) => {
   try {
     const { postId } = req.params;
-
-    let posts = await readJSONFile(postsFilePath);
-    posts = posts.filter(p => p._id !== postId);
-
-    await writeJSONFile(postsFilePath, posts);
+    const result = await Post.deleteOne({ _id: postId });
+    if (result.deletedCount === 0) return res.status(404).json({ error: "Post not found" });
     res.status(204).send();
   } catch (err) {
     next(err);
@@ -145,51 +138,31 @@ const addComment = async (req, res, next) => {
       return res.status(400).json({ error: 'userId and content are required' });
     }
 
-    const users = await readJSONFile(usersFilePath);
-    const user = users.find((u) => u.id === userId);
-
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const comments = await readJSONFile(commentsFilePath);
-
-    const newComment = {
-      _id: uuidv4(),
+    const newComment = new Comment({
       postId,
       userId,
-      username: user.username, 
+      username: user.username,
       content,
       parentCommentId: parentCommentId || null,
-      createdAt: new Date(),
-      replies: [], 
-    };
+    });
 
-    if (parentCommentId) {
-      const parentComment = comments.find((c) => c._id === parentCommentId);
-      if (!parentComment) {
-        return res.status(404).json({ error: 'Parent comment not found' });
-      }
-      const newReply = { ...newComment, _id: uuidv4() };
-      parentComment.replies.unshift(newReply);
-    } else {
-      comments.unshift(newComment);
-    }
-
-    await writeJSONFile(commentsFilePath, comments);
-
+    await newComment.save();
     res.status(201).json(newComment);
   } catch (err) {
     next(err);
   }
 };
+
 const getComments = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const comments = await readJSONFile(commentsFilePath);
-
-    const postComments = comments.filter(c => c.postId === postId && !c.parentCommentId);
-    res.json(postComments);
+    const comments = await Comment.find({ postId, parentCommentId: null }).populate('userId', 'username');
+    res.json(comments);
   } catch (err) {
     next(err);
   }
@@ -204,57 +177,37 @@ const updateComment = async (req, res, next) => {
       return res.status(400).json({ error: 'Content is required' });
     }
 
-    const comments = await readJSONFile(commentsFilePath);
-    const commentIndex = comments.findIndex(c => c.postId === postId && c._id === commentId);
-
-    if (commentIndex === -1) {
+    const comment = await Comment.findOne({ postId, _id: commentId });
+    if (!comment) {
       return res.status(404).json({ error: 'Comment not found' });
     }
 
-    comments[commentIndex] = {
-      ...comments[commentIndex],
-      content,
-      updatedAt: new Date(),
-    };
+    comment.content = content;
+    comment.updatedAt = new Date();
 
-    await writeJSONFile(commentsFilePath, comments);
-    res.status(200).json(comments[commentIndex]);
+    await comment.save();
+    res.status(200).json(comment);
   } catch (err) {
-    console.error('Error in updateComment route:', err);
     next(err);
   }
 };
 
-
 const removeComment = async (req, res, next) => {
   try {
     const { postId, commentId } = req.params;
+    const result = await Comment.deleteOne({ postId, _id: commentId });
 
-    let comments = await readJSONFile(commentsFilePath);
-    const commentIndex = comments.findIndex(c => c._id === commentId && c.postId === postId);
+    if (result.deletedCount === 0) return res.status(404).json({ error: "Comment not found" });
 
-    if (commentIndex === -1) return res.status(404).json({ error: "Comment not found" });
+    // Optionally, delete nested replies here
+    await Comment.deleteMany({ parentCommentId: commentId });
 
-    const [removedComment] = comments.splice(commentIndex, 1);
-
-    const deleteNestedReplies = (parentId) => {
-      comments = comments.filter(c => {
-        if (c.parentCommentId === parentId) {
-          deleteNestedReplies(c._id);
-          return false;
-        }
-        return true;
-      });
-    };
-
-    deleteNestedReplies(removedComment._id);
-
-    await writeJSONFile(commentsFilePath, comments);
     res.status(204).send();
   } catch (err) {
     next(err);
   }
 };
+
 const likePost = async (req, res, next) => {
   try {
     const { postId } = req.params;
@@ -264,24 +217,14 @@ const likePost = async (req, res, next) => {
       return res.status(400).json({ error: 'userId is required' });
     }
 
-    const likes = await readJSONFile(likesFilePath);
-    const posts = await readJSONFile(postsFilePath);
-    const post = posts.find(p => p._id === postId);
-
+    const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ error: 'Post not found' });
 
-    const alreadyLiked = likes.some(l => l.postId === postId && l.userId === userId);
-    if (alreadyLiked) return res.status(400).json({ error: 'Post already liked' });
+    const existingLike = await Like.findOne({ postId, userId });
+    if (existingLike) return res.status(400).json({ error: 'Post already liked' });
 
-    const newLike = {
-      _id: uuidv4(),
-      postId,
-      userId,
-      createdAt: new Date(),
-    };
-
-    likes.push(newLike);
-    await writeJSONFile(likesFilePath, likes);
+    const newLike = new Like({ postId, userId });
+    await newLike.save();
 
     res.status(201).json(newLike);
   } catch (err) {
@@ -298,11 +241,7 @@ const unlikePost = async (req, res, next) => {
       return res.status(400).json({ error: 'userId is required' });
     }
 
-    let likes = await readJSONFile(likesFilePath);
-    likes = likes.filter(l => !(l.postId === postId && l.userId === userId));
-
-    await writeJSONFile(likesFilePath, likes);
-
+    await Like.deleteOne({ postId, userId });
     res.status(204).send();
   } catch (err) {
     next(err);
@@ -312,14 +251,12 @@ const unlikePost = async (req, res, next) => {
 const getLikesForPost = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const likes = await readJSONFile(likesFilePath);
-    const postLikes = likes.filter(l => l.postId === postId);
-    res.json(postLikes);
+    const likes = await Like.find({ postId }).populate('userId', 'username');
+    res.json(likes);
   } catch (err) {
     next(err);
   }
 };
-
 
 module.exports = {
   getPosts,
@@ -334,4 +271,5 @@ module.exports = {
   likePost,
   unlikePost,
   getLikesForPost,
+  getPostsByUserId,
 };

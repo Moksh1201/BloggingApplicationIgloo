@@ -1,8 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
-const path = require('path');
 const multer = require('multer');
-const { readJSONFile, writeJSONFile } = require('../utils/fileUtils');
-const videoFilePath = path.join(__dirname, '../data/videos.json');
+const Video = require('../models/video'); 
+const User = require('../models/user');  
 
 // Multer storage for videos
 const videoStorage = multer.diskStorage({
@@ -35,20 +34,21 @@ const uploadVideo = async (req, res, next) => {
       return res.status(400).json({ error: 'userId and title are required' });
     }
 
-    const videos = await readJSONFile(videoFilePath);
+    // Ensure the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
-    const newVideo = {
-      _id: uuidv4(),
+    const newVideo = new Video({
       userId,
       title,
       description: description || '',
       videoPath: `/uploads/videos/${req.file.filename}`,
       createdAt: new Date(),
-    };
+    });
 
-    videos.push(newVideo);
-
-    await writeJSONFile(videoFilePath, videos);
+    await newVideo.save();
     res.status(201).json(newVideo);
   } catch (err) {
     next(err);
@@ -57,7 +57,7 @@ const uploadVideo = async (req, res, next) => {
 
 const getVideos = async (req, res, next) => {
   try {
-    const videos = await readJSONFile(videoFilePath);
+    const videos = await Video.find({});
     res.json(videos);
   } catch (err) {
     next(err);
@@ -67,8 +67,7 @@ const getVideos = async (req, res, next) => {
 const getVideoById = async (req, res, next) => {
   try {
     const { videoId } = req.params;
-    const videos = await readJSONFile(videoFilePath);
-    const video = videos.find((v) => v._id === videoId);
+    const video = await Video.findById(videoId);
 
     if (!video) return res.status(404).json({ error: 'Video not found' });
 

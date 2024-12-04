@@ -1,60 +1,43 @@
-const fs = require('fs');
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
-const favoritesFilePath = path.join(__dirname, '../data/favorites.json');
+const Favorite = require('../models/favorite'); // Import the Favorite model
 
-// Helper function to read data from JSON file
-const readDataFromFile = () => {
-  const data = fs.readFileSync(favoritesFilePath);
-  return JSON.parse(data);
-};
-
-// Helper function to write data to JSON file
-const writeDataToFile = (data) => {
-  fs.writeFileSync(favoritesFilePath, JSON.stringify(data, null, 2));
-};
-
-const addFavoritePost = (userId, postId) => {
-  const favorites = readDataFromFile();
-
-  // Avoid duplicates
-  const isDuplicate = favorites.some(fav => fav.userId === userId && fav.postId === postId);
-  if (isDuplicate) {
+// Add a post to favorites
+const addFavoritePost = async (userId, postId) => {
+  // Check if the favorite already exists to avoid duplicates
+  const existingFavorite = await Favorite.findOne({ userId, postId });
+  if (existingFavorite) {
     throw new Error('Post is already in favorites');
   }
 
   // Create a new favorite entry
-  const newFavorite = {
-    id: uuidv4(), // Unique ID for this favorite
+  const newFavorite = new Favorite({
     userId,
-    postId, // Include the postId
-  };
+    postId,
+  });
 
-  favorites.push(newFavorite); // Save the new entry
-  writeDataToFile(favorites); // Write to the JSON file
+  // Save the new favorite to the database
+  await newFavorite.save();
 };
 
-
-const getFavoritePosts = (userId) => {
+// Get all favorite posts for a user
+const getFavoritePosts = async (userId) => {
   if (!userId) {
     console.error("No userId provided.");
     return [];
   }
-  const favorites = readDataFromFile();
-  const userFavorites = favorites.filter(fav => fav.userId === userId);
+
+  // Find all favorite posts by the user
+  const userFavorites = await Favorite.find({ userId }).populate('postId', 'title content'); // Optionally populate post details
   return userFavorites;
 };
 
+// Remove a post from favorites
+const removeFavoritePost = async (userId, postId) => {
+  // Find and remove the favorite entry
+  const result = await Favorite.deleteOne({ userId, postId });
 
-const removeFavoritePost = (userId, postId) => {
-  const favorites = readDataFromFile();
-  const newFavorites = favorites.filter(fav => !(fav.userId === userId && fav.postId === postId));
-
-  if (favorites.length === newFavorites.length) {
+  if (result.deletedCount === 0) {
     throw new Error('Favorite not found');
   }
-
-  writeDataToFile(newFavorites);
 };
 
 module.exports = {
