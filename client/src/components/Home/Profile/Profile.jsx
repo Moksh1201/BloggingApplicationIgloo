@@ -13,7 +13,7 @@
 
 // const Profile = () => {
 //   const { currentUser } = Blog();
-//   const { userId } = useParams();
+//   const { userId } = useParams(); // Get userId from URL params
 //   const [profileData, setProfileData] = useState(null);
 //   const [loading, setLoading] = useState(true);
 //   const [currentActive, setCurrentActive] = useState({ title: "Home", comp: ProfileHome });
@@ -24,39 +24,38 @@
 //   const [followingData, setFollowingData] = useState([]);
 //   const [modalType, setModalType] = useState("");
 
+//   // Activity tabs for profile
 //   const activities = [
 //     { title: "Home", comp: ProfileHome },
 //     { title: "Lists", comp: ProfileLists },
 //     { title: "About", comp: ProfileAbout },
 //   ];
 
+//   // Fetch profile data for the user
 //   useEffect(() => {
 //     const fetchProfile = async () => {
 //       if (userId) {
 //         try {
 //           const token = localStorage.getItem("authToken");
-//           const response = await axiosInstance.get(`/auth/me`, {
-//             headers: {
-//               Authorization: `Bearer ${token}`,
-//             },
+//           const response = await axiosInstance.get(`/profile/${userId}`, {
+//             headers: { Authorization: `Bearer ${token}` },
 //           });
-//           const profileData = response.data;
-//           setProfileData(profileData);
-  
-//           // Fetch details for followers and following
-//           if (profileData.followers?.length) {
+//           setProfileData(response.data);
+
+//           // Fetch followers and following data
+//           if (response.data.followers?.length) {
 //             const followersResponse = await axiosInstance.post(
 //               "/profile/batch-users",
-//               { userIds: profileData.followers },
+//               { userIds: response.data.followers },
 //               { headers: { Authorization: `Bearer ${token}` } }
 //             );
 //             setFollowersData(followersResponse.data);
 //           }
-  
-//           if (profileData.following?.length) {
+
+//           if (response.data.following?.length) {
 //             const followingResponse = await axiosInstance.post(
 //               "/profile/batch-users",
-//               { userIds: profileData.following },
+//               { userIds: response.data.following },
 //               { headers: { Authorization: `Bearer ${token}` } }
 //             );
 //             setFollowingData(followingResponse.data);
@@ -68,27 +67,18 @@
 //         }
 //       }
 //     };
-  
+
 //     fetchProfile();
-//   }, [userId, currentUser?.userId]);
-//   // Depend on both userId and currentUser to handle updates
-
-//   const handleViewProfile = (userId) => {
-//     console.log("View Profile clicked for user:", userId);
-//   };
-
-//   const handleProfileUpdate = (updatedData) => {
-//     console.log("Profile updated:", updatedData);
-//     setProfileData(updatedData); 
-//   };
-
-//   const handleRemove = (userId) => {
-//     console.log("Remove clicked for user:", userId);
-//   };
+//   }, [userId]);
 
 //   if (loading) {
 //     return <p>Loading...</p>;
 //   }
+
+//   // Filter out the "Lists" and "About" tabs if it's not the current user
+//   const filteredActivities = activities.filter(activity => 
+//     currentUser?.id === profileData?.id || activity.title === "Home"
+//   );
 
 //   return (
 //     <section className="size flex gap-[4rem] relative">
@@ -114,7 +104,7 @@
 //         </div>
 
 //         <div className="flex items-center gap-5 mt-[1rem] border-b border-gray-300 mb-[3rem]">
-//           {activities.map((item, i) => (
+//           {filteredActivities.map((item, i) => (
 //             <div
 //               key={i}
 //               className={`py-[0.5rem] ${item.title === currentActive.title ? "border-b border-gray-500" : ""}`}
@@ -126,22 +116,17 @@
 //           ))}
 //         </div>
 
-//         <currentActive.comp
-//           profileData={profileData}
-//           setEditModal={setEditModal}
-//         />
+//         {/* Pass the correct userId or username to ProfileHome */}
+//         <currentActive.comp userId={userId} username={profileData?.username} />
 //       </div>
 
 //       {compactModal && (
-//     <CompactProfileModal
-//       users={modalType === "followers" ? followersData : followingData}
-//       onClose={() => setCompactModal(false)}
-//       onRemove={handleRemove}
-//       onViewProfile={handleViewProfile}
-//       modalType={modalType}
-//     />
-//   )}
-
+//         <CompactProfileModal
+//           users={modalType === "followers" ? followersData : followingData}
+//           onClose={() => setCompactModal(false)}
+//           modalType={modalType}
+//         />
+//       )}
 
 //       <button
 //         onClick={() => setModal(true)}
@@ -165,7 +150,7 @@
 //           <div className="sticky top-7 flex flex-col justify-between">
 //             <img
 //               className="w-[3.5rem] h-[3.5rem] object-cover rounded-full"
-//               src={profileData?.userImg || "/profile.jpg"}
+//               src={profileData?.profilePic || "/profile.jpg"}
 //               alt="profile-img"
 //             />
 //             <h2 className="py-2 font-bold capitalize">
@@ -174,7 +159,7 @@
 //             <p className="text-gray-500 first-letter:uppercase text-sm">
 //               {profileData?.bio || "No bio available"}
 //             </p>
-//             {currentUser?.userId === profileData?.id && (
+//             {currentUser?.id === profileData?.id && (
 //               <button
 //                 onClick={() => setEditModal(true)}
 //                 className="text-green-700 pt-6 text-sm w-fit"
@@ -196,10 +181,9 @@
 //       {editModal && (
 //         <EditProfile
 //           profileData={profileData}
-//           currentUserId={currentUser?.userId}
+//           currentUserId={currentUser?.id}
 //           editModal={editModal}
 //           setEditModal={setEditModal}
-//           handleProfileUpdate={handleProfileUpdate}
 //         />
 //       )}
 //     </section>
@@ -208,7 +192,7 @@
 
 // export default Profile;
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../../../axiosInstance";
 import { Blog } from "../../../Context/Context";
 import ProfileHome from "./Activities/ProfileHome";
@@ -219,10 +203,11 @@ import { LiaTimesSolid } from "react-icons/lia";
 import { IoSettingsSharp } from "react-icons/io5";
 import EditProfile from "./EditProfile";
 import CompactProfileModal from "./CompactProfileModal";
+import FollowBtn from "../../Home/UserToFollow/FollowBtn"; // Import FollowBtn component
 
 const Profile = () => {
-  const { currentUser } = Blog();  // Ensure this returns the correct current user data
-  const { userId } = useParams();
+  const { currentUser } = Blog();
+  const { userId } = useParams(); 
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentActive, setCurrentActive] = useState({ title: "Home", comp: ProfileHome });
@@ -233,39 +218,38 @@ const Profile = () => {
   const [followingData, setFollowingData] = useState([]);
   const [modalType, setModalType] = useState("");
 
+  // Activity tabs for profile
   const activities = [
     { title: "Home", comp: ProfileHome },
     { title: "Lists", comp: ProfileLists },
     { title: "About", comp: ProfileAbout },
   ];
 
+  // Fetch profile data for the user
   useEffect(() => {
     const fetchProfile = async () => {
       if (userId) {
         try {
           const token = localStorage.getItem("authToken");
           const response = await axiosInstance.get(`/profile/${userId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           });
-          const profileData = response.data;
-          setProfileData(profileData);
+          setProfileData(response.data);
 
-          // Fetch details for followers and following
-          if (profileData.followers?.length) {
+          // Fetch followers and following data
+          if (response.data.followers?.length) {
             const followersResponse = await axiosInstance.post(
               "/profile/batch-users",
-              { userIds: profileData.followers },
+              { userIds: response.data.followers },
               { headers: { Authorization: `Bearer ${token}` } }
             );
             setFollowersData(followersResponse.data);
           }
 
-          if (profileData.following?.length) {
+          if (response.data.following?.length) {
             const followingResponse = await axiosInstance.post(
               "/profile/batch-users",
-              { userIds: profileData.following },
+              { userIds: response.data.following },
               { headers: { Authorization: `Bearer ${token}` } }
             );
             setFollowingData(followingResponse.data);
@@ -281,22 +265,14 @@ const Profile = () => {
     fetchProfile();
   }, [userId]);
 
-  const handleViewProfile = (userId) => {
-    console.log("View Profile clicked for user:", userId);
-  };
-
-  const handleProfileUpdate = (updatedData) => {
-    console.log("Profile updated:", updatedData);
-    setProfileData(updatedData); 
-  };
-
-  const handleRemove = (userId) => {
-    console.log("Remove clicked for user:", userId);
-  };
-
   if (loading) {
     return <p>Loading...</p>;
   }
+
+  // Filter out the "Lists" and "About" tabs if it's not the current user
+  const filteredActivities = activities.filter(activity => 
+    currentUser?.id === profileData?.id || activity.title === "Home"
+  );
 
   return (
     <section className="size flex gap-[4rem] relative">
@@ -321,34 +297,34 @@ const Profile = () => {
           </div>
         </div>
 
+        {/* Follow Button */}
+        {currentUser?.id !== profileData?.id && (
+          <div className="pt-4">
+            <FollowBtn userId={profileData?.id} />
+          </div>
+        )}
+
         <div className="flex items-center gap-5 mt-[1rem] border-b border-gray-300 mb-[3rem]">
-          {activities.map((item, i) => (
-            // Only render the activity if the current user is viewing their own profile
-            (currentUser?.id === profileData?.id || item.title === "Home") && (
-              <div
-                key={i}
-                className={`py-[0.5rem] ${item.title === currentActive.title ? "border-b border-gray-500" : ""}`}
-              >
-                <button onClick={() => setCurrentActive(item)}>
-                  {item.title}
-                </button>
-              </div>
-            )
+          {filteredActivities.map((item, i) => (
+            <div
+              key={i}
+              className={`py-[0.5rem] ${item.title === currentActive.title ? "border-b border-gray-500" : ""}`}
+            >
+              <button onClick={() => setCurrentActive(item)}>
+                {item.title}
+              </button>
+            </div>
           ))}
         </div>
 
-        <currentActive.comp
-          profileData={profileData}
-          setEditModal={setEditModal}
-        />
+        {/* Pass the correct userId or username to ProfileHome */}
+        <currentActive.comp userId={userId} username={profileData?.username} />
       </div>
 
       {compactModal && (
         <CompactProfileModal
           users={modalType === "followers" ? followersData : followingData}
           onClose={() => setCompactModal(false)}
-          onRemove={handleRemove}
-          onViewProfile={handleViewProfile}
           modalType={modalType}
         />
       )}
@@ -375,7 +351,7 @@ const Profile = () => {
           <div className="sticky top-7 flex flex-col justify-between">
             <img
               className="w-[3.5rem] h-[3.5rem] object-cover rounded-full"
-              src={profileData?.userImg || "/profile.jpg"}
+              src={profileData?.profilePic || "/profile.jpg"}
               alt="profile-img"
             />
             <h2 className="py-2 font-bold capitalize">
@@ -409,7 +385,6 @@ const Profile = () => {
           currentUserId={currentUser?.id}
           editModal={editModal}
           setEditModal={setEditModal}
-          handleProfileUpdate={handleProfileUpdate}
         />
       )}
     </section>

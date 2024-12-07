@@ -16,13 +16,15 @@
 //       try {
 //         setLoading(true);
 
-//         if (!currentUser || !currentUser.uid) {
+//         if (!currentUser || !currentUser.id) {
 //           console.error("Current user not found or incomplete data");
 //           return;
 //         }
 
-//         // Fetch favorite posts of the current user
-//         const response = await axiosInstance.get(`/favorites/`);
+//         const userId = currentUser.id;  // Use userId from currentUser
+
+//         // Fetch favorite posts for the current user from the API endpoint
+//         const response = await axiosInstance.get(`/favorites/${userId}/favorites`);
 
 //         // Map through the favorite data to extract full post details
 //         const favoritePostsDetails = await Promise.all(
@@ -54,21 +56,17 @@
 
 //   return (
 //     <div>
-//       {currentUser && currentUser?.uid === getUserData?.userId ? (
-//         <div className="flex flex-col gap-[2rem] mb-[2rem]">
-//           {favoritePosts.length === 0 ? (
-//             <p className="text-gray-500">
-//               <span className="capitalize mr-1">{getUserData?.username}</span>{" "}
-//               has no saved posts.
-//             </p>
-//           ) : (
-//             favoritePosts.map((post) => (
-//               <PostsCard key={post.id || post._id} post={post} />
-//             ))
-//           )}
-//         </div>
+//       {favoritePosts.length === 0 ? (
+//         <p className="text-gray-500">
+//           <span className="capitalize mr-1">{getUserData?.userId}</span>{" "}
+//           has no saved posts.
+//         </p>
 //       ) : (
-//         <PrivateLists username={getUserData?.username} />
+//         <div className="flex flex-col gap-[2rem] mb-[2rem]">
+//           {favoritePosts.map((post) => (
+//             <PostsCard key={post.id || post._id} post={post} />
+//           ))}
+//         </div>
 //       )}
 //     </div>
 //   );
@@ -114,15 +112,8 @@ const ProfileLists = ({ getUserData }) => {
         // Fetch favorite posts for the current user from the API endpoint
         const response = await axiosInstance.get(`/favorites/${userId}/favorites`);
 
-        // Map through the favorite data to extract full post details
-        const favoritePostsDetails = await Promise.all(
-          response.data.map(async (fav) => {
-            const postResponse = await axiosInstance.get(`/posts/${fav.postId}`);
-            return postResponse.data;
-          })
-        );
-
-        setFavoritePosts(favoritePostsDetails);
+        // Assuming response.data contains the full post data in `postId`
+        setFavoritePosts(response.data); // Set data directly (populated postId)
       } catch (err) {
         console.error("Error fetching favorite posts:", err);
         setError(err.message);
@@ -146,13 +137,14 @@ const ProfileLists = ({ getUserData }) => {
     <div>
       {favoritePosts.length === 0 ? (
         <p className="text-gray-500">
-          <span className="capitalize mr-1">{getUserData?.username}</span>{" "}
+          <span className="capitalize mr-1">{getUserData?.userId}</span>{" "}
           has no saved posts.
         </p>
       ) : (
         <div className="flex flex-col gap-[2rem] mb-[2rem]">
-          {favoritePosts.map((post) => (
-            <PostsCard key={post.id || post._id} post={post} />
+          {favoritePosts.map((fav) => (
+            // Pass the full postId data to PostsCard
+            <PostsCard key={fav._id} post={fav.postId} />
           ))}
         </div>
       )}

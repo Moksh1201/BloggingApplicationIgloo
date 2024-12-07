@@ -146,6 +146,7 @@ const followUser = async (userId, followId) => {
 
 // Unfollow user
 const unfollowUser = async (userId, unfollowId) => {
+  // Fetch the users based on the provided IDs
   const user = await User.findById(userId);
   const unfollowUser = await User.findById(unfollowId);
 
@@ -153,14 +154,25 @@ const unfollowUser = async (userId, unfollowId) => {
     throw new Error('User(s) not found');
   }
 
-  user.following = user.following.filter(id => id !== unfollowId);
-  unfollowUser.followers = unfollowUser.followers.filter(id => id !== userId);
+  // Check if the user is actually following the other user
+  if (!user.following.some(id => id.toString() === unfollowId.toString())) {
+    throw new Error('You are not following this user');
+  }
 
+  // Remove the unfollowed user from both following and followers
+  user.following = user.following.filter(id => id.toString() !== unfollowId.toString());
+  unfollowUser.followers = unfollowUser.followers.filter(id => id.toString() !== userId.toString());
+
+  // Save the changes
   await user.save();
   await unfollowUser.save();
 
-  return { message: 'User unfollowed successfully' };
+  // Optionally fetch updated users and return
+  const updatedUser = await User.findById(userId);
+
+  return { message: 'User unfollowed successfully', updatedUser };
 };
+
 
 module.exports = {
   getAllUsers,

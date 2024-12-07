@@ -94,7 +94,7 @@ const secretKey = 'vG7yL*4s&uVxwRmd@M!z9^Tj0Q$e6H5';
 // Register user
 const registerUser = async (userData) => {
   try {
-    const { username, email, password, bio = '', profilePic = null, isAdmin = false } = userData;
+    const { username, email, password, bio = '', profilePic = null } = userData;
 
     // Check for existing email or username
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
@@ -112,7 +112,6 @@ const registerUser = async (userData) => {
       password: hashedPassword,
       bio,
       profilePic,
-      isAdmin,
       followers: [],  // Initialize empty followers array
       following: []   // Initialize empty following array
     });

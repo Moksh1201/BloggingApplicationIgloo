@@ -6,7 +6,7 @@ import Actions from './Actions/Actions';
 import axiosInstance from '../../../axiosInstance';
 
 const PostsCard = ({ post, setFilteredPost }) => {
-  const { title, desc, created, images, _id: postId, userId } = post || {};
+  const { title, desc, created, images, _id: postId, username } = post || {};
   const { currentUser } = Blog();
   const navigate = useNavigate();
 
@@ -53,10 +53,10 @@ const PostsCard = ({ post, setFilteredPost }) => {
             <p className="text-gray-700">{desc}</p>
           </div>
           <div className="flex justify-between items-center mt-4">
-            <p className="text-sm text-gray-600">By {userId}</p>
-            {currentUser?.username === userId && (
+            <p className="text-sm text-gray-600">By {username}</p>
+            {currentUser?.username === username && (
               <div className="mt-2">
-                <Actions postId={postId} title={title} desc={desc} postUserId={userId} />
+                <Actions postId={postId} title={title} desc={desc} postUserId={username} />
               </div>
             )}
           </div>

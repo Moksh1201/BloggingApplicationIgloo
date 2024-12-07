@@ -68,7 +68,8 @@ const Preview = ({ setPublish, description, title }) => {
       }
 
       const formData = new FormData();
-      formData.append("userId", currentUser.username);
+      formData.append("userId", currentUser.id);
+      formData.append("username", currentUser.username);
       formData.append("title", preview.title);
       formData.append("content", desc);
       formData.append("tags", tags.join(", "));

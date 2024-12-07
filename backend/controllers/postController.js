@@ -5,26 +5,26 @@ const Comment = require('../models/comment');
 const Like = require('../models/like');
 const User = require('../models/user'); 
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'uploads/');
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, `${Date.now()}-${file.originalname}`);
+//   },
+// });
 
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Invalid file type'));
-    }
-  },
-});
+// const upload = multer({
+//   storage,
+//   fileFilter: (req, file, cb) => {
+//     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+//     if (allowedTypes.includes(file.mimetype)) {
+//       cb(null, true);
+//     } else {
+//       cb(new Error('Invalid file type'));
+//     }
+//   },
+// });
 
 // Controller functions
 
@@ -64,9 +64,9 @@ const getPostsByUserId = async (req, res, next) => {
 
 const createPost = async (req, res, next) => {
   try {
-    const { userId, content, title, tags } = req.body;
+    const { userId, content, title, tags,username } = req.body;
 
-    if (!userId || !content || !title) {
+    if (!userId || !content || !title || !username) {
       return res.status(400).json({ error: 'userId, content, and title are required' });
     }
 
@@ -76,6 +76,7 @@ const createPost = async (req, res, next) => {
 
     const newPost = new Post({
       userId,
+      username,
       content,
       title,
       tags: tags || [],
