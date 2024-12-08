@@ -1,31 +1,7 @@
-const { v4: uuidv4 } = require('uuid');
-const multer = require('multer');
 const Post = require('../models/Post');
 const Comment = require('../models/comment');
 const Like = require('../models/like');
 const User = require('../models/user'); 
-
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, 'uploads/');
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, `${Date.now()}-${file.originalname}`);
-//   },
-// });
-
-// const upload = multer({
-//   storage,
-//   fileFilter: (req, file, cb) => {
-//     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-//     if (allowedTypes.includes(file.mimetype)) {
-//       cb(null, true);
-//     } else {
-//       cb(new Error('Invalid file type'));
-//     }
-//   },
-// });
-
 // Controller functions
 
 const getPosts = async (req, res, next) => {
@@ -139,35 +115,97 @@ const addComment = async (req, res, next) => {
       return res.status(400).json({ error: 'userId and content are required' });
     }
 
+    // Fetch the user from the database
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Initialize the new comment
     const newComment = new Comment({
       postId,
       userId,
       username: user.username,
       content,
-      parentCommentId: parentCommentId || null,
+      parentCommentId: parentCommentId || null, // Reference parent if reply
+      replies: [], // Always initialize replies as an empty array
+      createdAt: new Date(),
     });
 
-    await newComment.save();
+    if (parentCommentId) {
+      // Handle replies to an existing comment
+      const parentComment = await Comment.findById(parentCommentId);
+
+      if (!parentComment) {
+        return res.status(404).json({ error: 'Parent comment not found' });
+      }
+
+      // Save the reply
+      await newComment.save();
+
+      // Add the reply ID to the parent comment's `replies` array
+      parentComment.replies.unshift(newComment._id); // Add to the top
+      await parentComment.save();
+    } else {
+      // Handle top-level comments
+      await newComment.save();
+    }
+
     res.status(201).json(newComment);
   } catch (err) {
     next(err);
   }
 };
 
+// const getComments = async (req, res, next) => {
+//   try {
+//     const { postId } = req.params;
+
+//     const comments = await Comment.find({ postId, parentCommentId: null })
+//       .populate('userId', 'username')
+//       .populate({
+//         path: 'replies',
+//         options: { sort: { createdAt: -1 } }, // Sort replies by creation date (newest first)
+//         populate: { path: 'userId', select: 'username' }, // Populate user data for nested replies
+//       })
+//       .sort({ createdAt: -1 }); // Sort top-level comments by creation date (newest first)
+
+//     res.json(comments);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 const getComments = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const comments = await Comment.find({ postId, parentCommentId: null }).populate('userId', 'username');
-    res.json(comments);
+    const currentUserId = req.user?.id; // Assume `req.user` contains authenticated user data
+
+    const comments = await Comment.find({ postId, parentCommentId: null })
+      .populate('userId', 'username') // Fetch username along with userId
+      .populate({
+        path: 'replies',
+        options: { sort: { createdAt: -1 } }, // Sort replies by newest first
+        populate: { path: 'userId', select: 'username' }, // Populate nested replies with user data
+      })
+      .sort({ createdAt: -1 }); // Sort top-level comments by newest first
+
+    // Add `isEditable` field
+    const commentsWithEditFlag = comments.map(comment => ({
+      ...comment.toObject(),
+      isEditable: comment.userId.toString() === currentUserId, // Check if current user is the author
+      replies: comment.replies.map(reply => ({
+        ...reply.toObject(),
+        isEditable: reply.userId.toString() === currentUserId, // Check for nested replies
+      })),
+    }));
+
+    res.json(commentsWithEditFlag);
   } catch (err) {
     next(err);
   }
 };
+
 
 const updateComment = async (req, res, next) => {
   try {
@@ -200,7 +238,7 @@ const removeComment = async (req, res, next) => {
 
     if (result.deletedCount === 0) return res.status(404).json({ error: "Comment not found" });
 
-    // Optionally, delete nested replies here
+    // Delete nested replies
     await Comment.deleteMany({ parentCommentId: commentId });
 
     res.status(204).send();
@@ -208,6 +246,7 @@ const removeComment = async (req, res, next) => {
     next(err);
   }
 };
+
 
 const likePost = async (req, res, next) => {
   try {
@@ -252,8 +291,16 @@ const unlikePost = async (req, res, next) => {
 const getLikesForPost = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const likes = await Like.find({ postId }).populate('userId', 'username');
-    res.json(likes);
+    const { userId } = req.query; // Use query param for user ID
+
+    // Fetch all likes for the post
+    const likes = await Like.find({ postId });
+    const hasLiked = userId ? likes.some((like) => like.userId.toString() === userId) : false;
+
+    res.status(200).json({
+      totalLikes: likes.length,
+      hasLiked,
+    });
   } catch (err) {
     next(err);
   }
