@@ -16,7 +16,7 @@ const Context = ({ children }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [publish, setPublish] = useState(false);
-  const [filteredPosts, setFilteredPosts] = useState([]); // New state for filtered posts
+  const [filteredPosts, setFilteredPosts] = useState([]); 
 
   // Fetch the current user based on the token
   const fetchCurrentUser = async () => {

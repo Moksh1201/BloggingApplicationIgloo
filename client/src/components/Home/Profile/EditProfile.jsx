@@ -199,7 +199,7 @@ const EditProfile = ({ editModal, setEditModal, getUserData, setProfileData }) =
     userImg: "",
     bio: "",
   });
-  const [currentUserId, setCurrentUserId] = useState(null); // Store current user ID
+  const [currentUserId, setCurrentUserId] = useState(null); 
   const btn = "border border-green-600 py-2 px-5 rounded-full text-green-600";
   const navigate = useNavigate();
 
