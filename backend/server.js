@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors()); // Enable CORS for all routes
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static('uploads'));
-
+app.use('/uploads/videos', express.static(path.join(__dirname, 'uploads/videos')));
 // Route handlers
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
@@ -28,6 +28,8 @@ app.use('/api/posts', postRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/videos', videoRoutes);
+
+
 
 // Error handling
 app.use((err, req, res, next) => {

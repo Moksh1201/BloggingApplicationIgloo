@@ -4,7 +4,7 @@
 // import { LiaEditSolid } from "react-icons/lia";
 // import { IoMdNotificationsOutline } from "react-icons/io";
 // import { MdKeyboardArrowDown } from "react-icons/md";
-// import { IoClose } from "react-icons/io5"; 
+// import { IoClose } from "react-icons/io5";
 // import { Link, useLocation, useNavigate } from "react-router-dom";
 // import Search from "./Search";
 // import Modal from "../../../utils/Modal";
@@ -34,7 +34,7 @@
 
 //   const toggleDropdown = () => {
 //     setDropdownOpen(!dropdownOpen);
-//     setOverlayVisible(!overlayVisible); 
+//     setOverlayVisible(!overlayVisible);
 //   };
 
 //   const handleAddAdminClick = () => {
@@ -52,11 +52,6 @@
 //   const closeDropdown = () => {
 //     setDropdownOpen(false);
 //     setOverlayVisible(false);
-//   };
-
-//   const handlePostClick = (post) => {
-//     setFilteredPost(post); // Update filtered post when clicked
-//     navigate(`/post/${post._id}`); // Redirect to post page
 //   };
 
 //   if (loading) {
@@ -77,15 +72,17 @@
 //       )}
 
 //       <div className="h-[70px] flex items-center justify-between px-6 relative z-20">
+//         {/* Left Section */}
 //         <div className="flex items-center gap-5">
 //           <Link to={"/"}>
 //             <span className="text-4xl text-white">
 //               <BsMedium />
 //             </span>
 //           </Link>
-//           <Search modal={searchModal} setModal={setSearchModal} onPostClick={handlePostClick} />
+//           <Search modal={searchModal} setModal={setSearchModal} />
 //         </div>
 
+//         {/* Right Section */}
 //         <div className="flex items-center gap-5 sm:gap-7">
 //           <span
 //             onClick={() => setSearchModal(true)}
@@ -120,6 +117,7 @@
 //             </Link>
 //           )}
 
+//           {/* Admin Options Dropdown */}
 //           {currentUser?.isAdmin && (
 //             <div className="relative">
 //               <button
@@ -171,6 +169,7 @@
 //             <IoMdNotificationsOutline />
 //           </span>
 
+//           {/* User Modal */}
 //           <div className="flex items-center relative">
 //             <img
 //               onClick={() => setModal(true)}
@@ -178,7 +177,7 @@
 //               src={currentUser?.userImg || "/profile.jpg"}
 //               alt="profile-img"
 //             />
-//             <span className="text-gray-400 cursor-pointer">
+//             <span className="text-gray-300 cursor-pointer">
 //               <MdKeyboardArrowDown />
 //             </span>
 //             <Modal modal={modal} setModal={setModal}>
@@ -211,6 +210,7 @@ import Modal from "../../../utils/Modal";
 import UserModal from "./UserModal";
 import Loading from "../../Loading/Loading";
 import { Blog } from "../../../Context/Context";
+import { toast } from "react-toastify"; // Import toast for notifications
 
 const HomeHeader = ({ setFilteredPost }) => {
   const [modal, setModal] = useState(false);
@@ -229,8 +229,16 @@ const HomeHeader = ({ setFilteredPost }) => {
   }, [currentUser]);
 
   const goToVideos = () => {
-    navigate("/videos");
+    if (currentUser?.isPremium) {
+      // Navigate to videos if the user is premium
+      navigate("/videos");
+    } else {
+      // Redirect to PaymentPage for non-premium users
+      toast.info("You need to be a premium user to access Vibes.");
+      navigate("/payment");
+    }
   };
+  
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);

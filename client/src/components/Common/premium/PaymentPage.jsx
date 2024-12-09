@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import axiosInstance from '../../../axiosInstance';
 
-const stripePromise = loadStripe('your-publishable-key'); 
+const stripePromise = loadStripe('pk_test_51O2ZkNSCIg3CTOdnyBPcG5RHKK3RvzuCK6QMR1uMNbuiO18ZeaP1DiXfJ0Qty4vds25OknNjrX94yqWsOjb7RQiq00vDSKE1KF'); 
 
 const PaymentPage = () => {
   const [selectedPlan, setSelectedPlan] = useState('monthly'); 
@@ -11,7 +11,7 @@ const PaymentPage = () => {
     const stripe = await stripePromise;
 
     try {
-      const { data } = await axiosInstance.post('/api/create-checkout-session', {
+      const { data } = await axiosInstance.post('/create-checkout-session', {
         plan: selectedPlan, // Send selected plan to backend
       });
 
@@ -34,8 +34,8 @@ const PaymentPage = () => {
             selectedPlan === 'monthly' ? 'border-blue-500' : 'border-transparent'
           } hover:shadow-xl transition`}
         >
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Monthly</h2>
-          <p className="text-gray-600 mb-4">$40 per user / month</p>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Trial</h2>
+          <p className="text-gray-600 mb-4">₹1 per user / month</p>
           <ul className="text-gray-600 space-y-2">
             <li>Opportunity Tracking</li>
             <li>Team Collaboration</li>
@@ -51,7 +51,7 @@ const PaymentPage = () => {
           } hover:shadow-xl transition`}
         >
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Half-Yearly</h2>
-          <p className="text-gray-600 mb-4">$200 per user / 6 months</p>
+          <p className="text-gray-600 mb-4">₹49 per user / 6 months</p>
           <ul className="text-gray-600 space-y-2">
             <li>All Historical Data</li>
             <li>Premium Customer Support</li>
@@ -67,7 +67,7 @@ const PaymentPage = () => {
           } hover:shadow-xl transition`}
         >
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Yearly</h2>
-          <p className="text-gray-600 mb-4">$360 per user / year</p>
+          <p className="text-gray-600 mb-4">₹149 per user / year</p>
           <ul className="text-gray-600 space-y-2">
             <li>Market Research</li>
             <li>All Premium Data Points</li>

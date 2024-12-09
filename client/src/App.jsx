@@ -15,7 +15,8 @@ import DeleteUser from "./components/Home/Header/DeleteUser";
 import AdminPosts from "./components/Home/Header/AdminPosts";
 import AddAdmin from "./components/Home/Header/AddAdmin";
 import Vibes from "./components/Common/ShortVideos/Vibes";
-
+import UploadVideo from "./components/Common/ShortVideos/uploadvideo";
+import PaymentPage from "./components/Common/premium/PaymentPage";
 
 
 
@@ -60,8 +61,9 @@ function App() {
         <Route path="/admin-posts" element={<AdminPosts />} />
         <Route path="/delete-users" element={<DeleteUser />} />
         <Route path="/Videos" element={<Vibes />} />
-
-
+        <Route path="/upload-video" element={<UploadVideo />} />
+        <Route path="/payment" element={<PaymentPage />} />
+        
         <Route path="*" element={<Navigate to={currentUser ? "/" : "/demo"} />} />
       </Routes>
     </>

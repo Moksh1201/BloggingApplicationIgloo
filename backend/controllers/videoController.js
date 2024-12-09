@@ -1,13 +1,13 @@
 const Video = require('../models/video'); 
-const User = require('../models/user');  
+const User = require('../models/user');
 
 // Controller functions
 const uploadVideo = async (req, res, next) => {
   try {
-    const { userId, title, description } = req.body;
+    const { userId, username, title, description, tags } = req.body;
 
-    if (!userId || !title) {
-      return res.status(400).json({ error: 'userId and title are required' });
+    if (!userId || !title || !username) {
+      return res.status(400).json({ error: 'userId, title, and username are required' });
     }
 
     // Ensure the user exists
@@ -16,12 +16,20 @@ const uploadVideo = async (req, res, next) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    if (!req.file) {
+      return res.status(400).json({ error: 'No video file uploaded' });
+    }
+
+    // Create a new video document
     const newVideo = new Video({
       userId,
+      username,
       title,
       description: description || '',
+      tags: tags ? tags.split(",") : [], // Convert string to array
       videoPath: `/uploads/videos/${req.file.filename}`,
       createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     await newVideo.save();
@@ -31,9 +39,14 @@ const uploadVideo = async (req, res, next) => {
   }
 };
 
+
+
 const getVideos = async (req, res, next) => {
   try {
-    const videos = await Video.find({});
+    const { page = 1, limit = 10 } = req.query; 
+    const videos = await Video.find({})
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
     res.json(videos);
   } catch (err) {
     next(err);

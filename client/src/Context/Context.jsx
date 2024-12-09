@@ -43,6 +43,8 @@ const Context = ({ children }) => {
         isAdmin: response.data.isAdmin,
         followers: response.data.followers,
         following: response.data.following,
+        isPremium: response.data.isPremium,
+
       });
     } catch (error) {
       console.error("Error fetching current user:", error);
