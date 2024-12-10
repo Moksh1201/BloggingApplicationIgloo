@@ -246,37 +246,30 @@ const SignUp = ({ setSignReq, setModal }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const formErrors = validateForm();
     setErrors(formErrors);
-
+  
     if (Object.keys(formErrors).length > 0) {
       toast.error("Please fix the errors before submitting");
       return;
     }
-
+  
     try {
       setLoading(true);
-      const response = await axiosInstance.post("/auth/register", {
+      // Send a POST request to the register endpoint
+      await axiosInstance.post("/auth/register", {
         username: form.username,
         email: form.email,
         password: form.password,
       });
-
-      const { token } = response.data;
-
-      if (token) {
-        localStorage.setItem("authToken", token);
-        toast.success("Account created successfully");
-
-        // Navigate to homepage after successful registration
-        navigate("/");
-
-        // Close modal after successful registration
-        setModal(false);
-      } else {
-        toast.error("Failed to get authentication token");
-      }
+  
+      // Inform the user of successful registration
+      toast.success("Account created successfully");
+  
+      // Navigate to the login page or close the modal
+      setModal(false);
+      navigate("/login");
     } catch (error) {
       console.error("Error during registration:", error.response ? error.response.data : error.message);
       toast.error(
@@ -286,6 +279,7 @@ const SignUp = ({ setSignReq, setModal }) => {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="size mt-[6rem] text-center">
