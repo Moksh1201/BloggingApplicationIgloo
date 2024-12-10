@@ -11,7 +11,7 @@ const postRoutes = require('./routes/postRoutes');
 const favoriteRoutes = require('./routes/favoriteRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const videoRoutes = require('./routes/videoRoutes');
-
+const paymentRoutes = require('./routes/paymentRoutes');
 dotenv.config();
 
 const app = express();
@@ -28,7 +28,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/videos', videoRoutes);
-
+app.use('/api/payment', paymentRoutes);
 
 
 // Error handling

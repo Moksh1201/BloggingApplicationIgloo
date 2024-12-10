@@ -118,7 +118,7 @@ const registerUser = async (userData) => {
 
     return {
       message: 'User registered successfully',
-      user: newUser.toJSON() // Ensure the response matches the desired format
+      user: newUser.toJSON() 
     };
   } catch (error) {
     console.error('Error registering user:', error);
@@ -141,7 +141,7 @@ const loginUser = async (email, password) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, isAdmin: user.isAdmin, isPremium: user.isPremium},
       secretKey,
       { expiresIn: '1h' }
     );

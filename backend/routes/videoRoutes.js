@@ -1,7 +1,8 @@
 const express = require('express');
 const multer = require('multer');
 const { uploadVideo, getVideos, getVideoById } = require('../controllers/videoController');
-const authenticateAdmin = require('../middleware/authenticateAdmin');
+const validatePremiumUser = require('../middleware/validatePremiumUser');
+const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -29,8 +30,9 @@ const upload = multer({
 });
 
 // Routes
-router.post('/upload', upload.single('video'), uploadVideo); 
-router.get('/', getVideos);
-router.get('/:videoId', getVideoById);
+router.post('/upload', authMiddleware, validatePremiumUser, upload.single('video'), uploadVideo); 
+router.get('/', authMiddleware, validatePremiumUser, getVideos);
+router.get('/:videoId', authMiddleware, validatePremiumUser, getVideoById);
+
 
 module.exports = router;

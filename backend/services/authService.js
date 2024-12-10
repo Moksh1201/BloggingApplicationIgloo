@@ -7,7 +7,7 @@ const secretKey = process.env.SECRET_KEY; // Access secret key from environment 
 
 // Function to generate a JWT token
 const generateToken = (user) => {
-  return jwt.sign({ id: user.id, username: user.username }, secretKey, { expiresIn: '1h' });
+  return jwt.sign({ id: user.id, username: user.username,isAdmin: user.isAdmin, isPremium: user.isPremium }, secretKey, { expiresIn: '1h' });
 };
 
 // Function to verify a JWT token

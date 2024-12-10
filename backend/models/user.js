@@ -8,7 +8,9 @@ const userSchema = new mongoose.Schema({
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   profilePic: { type: String, default: null },
-  isAdmin: { type: Boolean, default: false }, // Added isAdmin field
+  isAdmin: { type: Boolean, default: false }, 
+  isPremium: { type: Boolean, default: false }, 
+  stripeCustomerId: { type: String },
 }, { timestamps: true });
 
 // Transform the returned object

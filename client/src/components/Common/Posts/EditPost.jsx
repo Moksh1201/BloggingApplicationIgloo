@@ -31,7 +31,7 @@ const EditPost = () => {
     const updatedPost = {
       title,
       description,
-      updatedAt: new Date().toISOString(),  // Set updatedAt to the current time
+      updatedAt: new Date().toISOString(),  
     };
 
     setLoading(true);
