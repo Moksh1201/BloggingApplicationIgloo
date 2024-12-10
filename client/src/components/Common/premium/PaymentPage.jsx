@@ -121,12 +121,8 @@ const PaymentPage = () => {
           } hover:shadow-xl transition`}
         >
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Trial</h2>
-          <p className="text-gray-600 mb-4">₹1 per user / month</p>
-          <ul className="text-gray-600 space-y-2">
-            <li>Opportunity Tracking</li>
-            <li>Team Collaboration</li>
-            <li>Advanced Search</li>
-          </ul>
+          <p className="text-gray-600 mb-4">₹1 per user one time only / trial (5 days)</p>
+          
         </div>
 
         {/* Half-Yearly Plan */}
@@ -138,11 +134,7 @@ const PaymentPage = () => {
         >
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Half-Yearly</h2>
           <p className="text-gray-600 mb-4">₹49 per user / 6 months</p>
-          <ul className="text-gray-600 space-y-2">
-            <li>All Historical Data</li>
-            <li>Premium Customer Support</li>
-            <li>Unlimited Data Exports</li>
-          </ul>
+         
         </div>
 
         {/* Yearly Plan */}
@@ -154,11 +146,7 @@ const PaymentPage = () => {
         >
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Yearly</h2>
           <p className="text-gray-600 mb-4">₹149 per user / year</p>
-          <ul className="text-gray-600 space-y-2">
-            <li>Market Research</li>
-            <li>All Premium Data Points</li>
-            <li>Unlimited Crew Members</li>
-          </ul>
+        
         </div>
       </div>
 
