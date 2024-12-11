@@ -14,7 +14,6 @@ const UserModal = ({ setModal }) => {
   const { currentUser, setCurrentUser } = Blog();
   const navigate = useNavigate();
 
-  // Ensure currentUser is valid and has an email
   console.log("Current User:", currentUser);
 
   if (!currentUser) {

@@ -18,7 +18,6 @@ const Context = ({ children }) => {
   const [publish, setPublish] = useState(false);
   const [filteredPosts, setFilteredPosts] = useState([]); 
 
-  // Fetch the current user based on the token
   const fetchCurrentUser = async () => {
     const token = localStorage.getItem("authToken");
 

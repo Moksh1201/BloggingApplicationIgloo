@@ -38,7 +38,7 @@ const EditPost = () => {
     try {
       await axios.put(`/posts/${updateData._id}`, updatedPost);
       toast.success("Post updated successfully");
-      setUpdateData(null);  // Clear updateData or redirect as needed
+      setUpdateData(null);  
     } catch (error) {
       toast.error("Failed to update post: " + (error.response?.data?.error || error.message));
     } finally {

@@ -37,11 +37,10 @@ const Follow = () => {
   // Filter users excluding current user
   const filteredUsers = users
     .slice(0, count)
-    .filter((user) => user.id !== currentUser?.id) || []; // Ensure it's an empty array if null
+    .filter((user) => user.id !== currentUser?.id) || []; 
 
-  // Handle profile navigation
   const handleProfileClick = (id) => {
-    console.log("Navigating to profile with ID:", id); // Debugging log
+    console.log("Navigating to profile with ID:", id); 
     navigate(`/profile/${id}`);
   };
 
@@ -49,11 +48,11 @@ const Follow = () => {
     <>
       {filteredUsers.length > 0 ? (
         filteredUsers.map((user, i) => {
-          const { username, bio, userImg, id } = user; // Note the change from userId to id
+          const { username, bio, userImg, id } = user; 
           return (
             <div key={i} className="flex items-start gap-2 my-4">
               <div
-                onClick={() => handleProfileClick(id)} // Ensure id is the correct user ID
+                onClick={() => handleProfileClick(id)} 
                 className="flex-1 flex items-center gap-2 cursor-pointer"
               >
                 <img

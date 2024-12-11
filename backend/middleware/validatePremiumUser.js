@@ -13,7 +13,6 @@ const validatePremiumUser = (req, res, next) => {
     const decoded = jwt.verify(token, secretKey); 
     req.user = decoded; 
 
-    // console.log('Decoded User:', req.user); 
 
     if (!req.user.isPremium) {
       return res.status(403).json({ message: 'Forbidden. Premium user access required.' });

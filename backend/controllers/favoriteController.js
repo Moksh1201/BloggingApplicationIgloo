@@ -1,28 +1,23 @@
-const Favorite = require('../models/favorite'); // Import the Favorite model
-const Post = require('../models/Post'); // Import the Post model
+const Favorite = require('../models/favorite'); 
+const Post = require('../models/Post'); 
 
-/**
- * Add a post to the user's favorites
- */
+
 const addFavoritePost = async (userId, postId) => {
   try {
     if (!userId || !postId) {
       throw new Error('Both userId and postId are required');
     }
 
-    // Ensure the post exists
     const postExists = await Post.findById(postId);
     if (!postExists) {
       throw new Error('Post not found');
     }
 
-    // Avoid duplicates
     const isDuplicate = await Favorite.findOne({ userId, postId });
     if (isDuplicate) {
       throw new Error('Post is already in favorites');
     }
 
-    // Create a new favorite entry
     const newFavorite = await Favorite.create({ userId, postId });
     return newFavorite;
   } catch (err) {
@@ -31,16 +26,13 @@ const addFavoritePost = async (userId, postId) => {
   }
 };
 
-/**
- * Get all favorite posts for a user
- */
 const getFavoritePosts = async (userId) => {
   if (!userId) {
     throw new Error('User ID is required');
   }
 
   try {
-    const favorites = await Favorite.find({ userId }).lean(); // Find favorites for the specific user
+    const favorites = await Favorite.find({ userId }).lean(); 
 
     return favorites.map(favorite => ({
       id: favorite._id.toString(),
@@ -53,16 +45,13 @@ const getFavoritePosts = async (userId) => {
 };
 
 
-/**
- * Remove a post from the user's favorites
- */
+
 const removeFavoritePost = async (userId, postId) => {
   try {
     if (!userId || !postId) {
       throw new Error('Both userId and postId are required');
     }
 
-    // Delete the favorite
     const result = await Favorite.deleteOne({ userId, postId });
     if (result.deletedCount === 0) {
       throw new Error('Favorite not found');

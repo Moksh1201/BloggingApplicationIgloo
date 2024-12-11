@@ -2,7 +2,6 @@ const Post = require('../models/Post');
 const Comment = require('../models/comment');
 const Like = require('../models/like');
 const User = require('../models/user'); 
-// Controller functions
 
 const getPosts = async (req, res, next) => {
   try {
@@ -24,7 +23,6 @@ const getPost = async (req, res, next) => {
   }
 };
 
-// Get posts by userId
 const getPostsByUserId = async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -121,33 +119,28 @@ const addComment = async (req, res, next) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Initialize the new comment
     const newComment = new Comment({
       postId,
       userId,
       username: user.username,
       content,
-      parentCommentId: parentCommentId || null, // Reference parent if reply
-      replies: [], // Always initialize replies as an empty array
+      parentCommentId: parentCommentId || null, 
+      replies: [], 
       createdAt: new Date(),
     });
 
     if (parentCommentId) {
-      // Handle replies to an existing comment
       const parentComment = await Comment.findById(parentCommentId);
 
       if (!parentComment) {
         return res.status(404).json({ error: 'Parent comment not found' });
       }
 
-      // Save the reply
       await newComment.save();
 
-      // Add the reply ID to the parent comment's `replies` array
-      parentComment.replies.unshift(newComment._id); // Add to the top
+      parentComment.replies.unshift(newComment._id); 
       await parentComment.save();
     } else {
-      // Handle top-level comments
       await newComment.save();
     }
 
@@ -179,24 +172,23 @@ const addComment = async (req, res, next) => {
 const getComments = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const currentUserId = req.user?.id; // Assume `req.user` contains authenticated user data
+    const currentUserId = req.user?.id; 
 
     const comments = await Comment.find({ postId, parentCommentId: null })
-      .populate('userId', 'username') // Fetch username along with userId
+      .populate('userId', 'username') 
       .populate({
         path: 'replies',
-        options: { sort: { createdAt: -1 } }, // Sort replies by newest first
-        populate: { path: 'userId', select: 'username' }, // Populate nested replies with user data
+        options: { sort: { createdAt: -1 } }, 
+        populate: { path: 'userId', select: 'username' }, 
       })
-      .sort({ createdAt: -1 }); // Sort top-level comments by newest first
+      .sort({ createdAt: -1 }); 
 
-    // Add `isEditable` field
     const commentsWithEditFlag = comments.map(comment => ({
       ...comment.toObject(),
-      isEditable: comment.userId.toString() === currentUserId, // Check if current user is the author
+      isEditable: comment.userId.toString() === currentUserId,
       replies: comment.replies.map(reply => ({
         ...reply.toObject(),
-        isEditable: reply.userId.toString() === currentUserId, // Check for nested replies
+        isEditable: reply.userId.toString() === currentUserId, 
       })),
     }));
 
@@ -238,7 +230,6 @@ const removeComment = async (req, res, next) => {
 
     if (result.deletedCount === 0) return res.status(404).json({ error: "Comment not found" });
 
-    // Delete nested replies
     await Comment.deleteMany({ parentCommentId: commentId });
 
     res.status(204).send();
@@ -291,9 +282,8 @@ const unlikePost = async (req, res, next) => {
 const getLikesForPost = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const { userId } = req.query; // Use query param for user ID
+    const { userId } = req.query; 
 
-    // Fetch all likes for the post
     const likes = await Like.find({ postId });
     const hasLiked = userId ? likes.some((like) => like.userId.toString() === userId) : false;
 

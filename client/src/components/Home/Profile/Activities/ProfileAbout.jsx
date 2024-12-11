@@ -6,16 +6,13 @@ const ProfileAbout = ({ profileData, setEditModal, setSettingsModal }) => {
 
   return (
     <div className="w-full">
-      {/* Bio section */}
       <p className="text-2xl first-letter:uppercase">Bio:  {profileData?.bio || "No bio available"}
       </p>
 
-      {/* Email section */}
       {profileData?.email && (
         <p className="mt-2 text-lg text-gray-600">Email: {profileData.email}</p>
       )}
 
-      {/* Followers and Following section */}
       <div className="mt-4 flex gap-6">
         <div className="flex items-center">
           <span className="font-semibold">Followers:</span>
@@ -27,7 +24,6 @@ const ProfileAbout = ({ profileData, setEditModal, setSettingsModal }) => {
         </div>
       </div>
 
-      {/* Display the 'Edit Profile' button if the logged-in user is viewing their own profile */}
       {currentUser?.uid === profileData?.userId && (
         <div className="text-right mt-6">
           <button
@@ -39,7 +35,6 @@ const ProfileAbout = ({ profileData, setEditModal, setSettingsModal }) => {
         </div>
       )}
 
-      {/* Display the 'Settings' button if the logged-in user is viewing their own profile */}
       
     </div>
   );

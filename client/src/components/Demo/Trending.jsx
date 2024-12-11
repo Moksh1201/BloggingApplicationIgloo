@@ -21,7 +21,6 @@ const LatestPosts = () => {
         setPosts(data);
       } catch (error) {
         console.error("Error fetching latest posts:", error);
-        // Optional: set an error state here if you want to display an error message
       } finally {
         setLoading(false);
       }

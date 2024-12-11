@@ -16,17 +16,16 @@
 const mongoose = require('mongoose');
 
 const commentSchema = new mongoose.Schema({
-  postId: { type: String, required: true },  // Ensure postId is stored as String
-  userId: { type: String, required: true },  // Ensure userId is stored as String
+  postId: { type: String, required: true },  
+  userId: { type: String, required: true }, 
   username: { type: String, required: true },
   content: { type: String, required: true },
-  parentCommentId: { type: String, default: null },  // Adjust parentCommentId to accept String (UUID)
+  parentCommentId: { type: String, default: null },  
   replies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date }
 });
 
-// Create model based on the schema
 const Comment = mongoose.model('Comment', commentSchema);
 
 

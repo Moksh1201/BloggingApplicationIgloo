@@ -13,12 +13,11 @@ const userSchema = new mongoose.Schema({
   stripeCustomerId: { type: String },
 }, { timestamps: true });
 
-// Transform the returned object
 userSchema.set('toJSON', {
   transform: (doc, ret) => {
-    ret.id = ret._id; // Rename _id to id
-    delete ret._id; // Remove the original _id field
-    delete ret.__v; // Remove the __v field
+    ret.id = ret._id; 
+    delete ret._id; 
+    delete ret.__v; 
     return ret;
   }
 });

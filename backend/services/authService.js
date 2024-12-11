@@ -1,21 +1,18 @@
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 
-dotenv.config(); // Load environment variables from .env file
+dotenv.config(); 
 
-const secretKey = process.env.SECRET_KEY; // Access secret key from environment variables
+const secretKey = process.env.SECRET_KEY; 
 
-// Function to generate a JWT token
 const generateToken = (user) => {
   return jwt.sign({ id: user.id, username: user.username,isAdmin: user.isAdmin, isPremium: user.isPremium }, secretKey, { expiresIn: '1h' });
 };
 
-// Function to verify a JWT token
 const verifyToken = (token) => {
   try {
     return jwt.verify(token, secretKey);
   } catch (err) {
-    // Log the error and return null
     console.error('Token verification failed:', err.message);
     return null;
   }

@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 const Like = ({ postId }) => {
   const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0); // Track total likes
+  const [likeCount, setLikeCount] = useState(0); 
   const { currentUser, setAuthModel } = Blog();
   const [userId, setUserId] = useState(null);
 
@@ -74,13 +74,13 @@ const Like = ({ postId }) => {
           ...requestConfig,
           data: { userId },
         });
-        setLikeCount((prev) => Math.max(prev - 1, 0)); // Decrement like count
+        setLikeCount((prev) => Math.max(prev - 1, 0)); 
       } else {
         await axiosInstance.post(url, { userId }, requestConfig);
-        setLikeCount((prev) => prev + 1); // Increment like count
+        setLikeCount((prev) => prev + 1); 
       }
 
-      setIsLiked(!isLiked); // Toggle the like status
+      setIsLiked(!isLiked); 
     } catch (error) {
       console.error("Error updating like status:", error.message);
       toast.error("Error updating like status");
@@ -94,7 +94,7 @@ const Like = ({ postId }) => {
           className={`text-xl ${isLiked ? "text-black" : "text-gray-500"}`}
         />
       </button>
-      <span>{likeCount}</span> {/* Display like count */}
+      <span>{likeCount}</span> 
     </div>
   );
 };

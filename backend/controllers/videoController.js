@@ -1,7 +1,6 @@
 const Video = require('../models/video'); 
 const User = require('../models/user');
 
-// Controller functions
 const uploadVideo = async (req, res, next) => {
   try {
     const { userId, username, title, description, tags } = req.body;
@@ -10,7 +9,6 @@ const uploadVideo = async (req, res, next) => {
       return res.status(400).json({ error: 'userId, title, and username are required' });
     }
 
-    // Ensure the user exists
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -20,13 +18,12 @@ const uploadVideo = async (req, res, next) => {
       return res.status(400).json({ error: 'No video file uploaded' });
     }
 
-    // Create a new video document
     const newVideo = new Video({
       userId,
       username,
       title,
       description: description || '',
-      tags: tags ? tags.split(",") : [], // Convert string to array
+      tags: tags ? tags.split(",") : [], 
       videoPath: `/uploads/videos/${req.file.filename}`,
       createdAt: new Date(),
       updatedAt: new Date(),

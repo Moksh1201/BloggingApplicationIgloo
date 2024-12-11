@@ -5,15 +5,14 @@ import { Blog } from "../../../../Context/Context";
 import axios from 'axios';
 
 const Comment = () => {
-  const { setShowComment, setCommentLength, postId } = Blog();  // Added postId from context
+  const { setShowComment, setCommentLength, postId } = Blog();  
 
   useEffect(() => {
-    // Fetch comments count from the API
     const fetchCommentCount = async () => {
       try {
-        const response = await axios.get(`/posts/${postId}/comments`); // Update with your API endpoint
+        const response = await axios.get(`/posts/${postId}/comments`); 
         const count = response.data.length;
-        setCommentLength(count);  // Update comment length in context
+        setCommentLength(count);  
       } catch (error) {
         console.error("Error fetching comments count:", error);
       }

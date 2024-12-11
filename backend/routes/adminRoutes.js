@@ -7,7 +7,6 @@ const {
   getPosts,
 } = require('../controllers/postController');
 
-// Get all admins
 router.get('/admins', authenticateAdmin, async (req, res) => {
   try {
     const admins = await adminController.getAdmins(req, res);

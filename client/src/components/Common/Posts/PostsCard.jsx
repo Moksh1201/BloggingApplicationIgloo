@@ -19,7 +19,7 @@ const PostsCard = ({ post, setFilteredPost }) => {
       const response = await axiosInstance.get(`/posts/${postId}`);
       const fetchedPost = response.data;
       navigate(`/posts/${postId}`, { state: { post: fetchedPost } });
-      setFilteredPost(title); // This will filter the topic card
+      setFilteredPost(title); 
     } catch (error) {
       console.error("Error fetching post data:", error);
     }

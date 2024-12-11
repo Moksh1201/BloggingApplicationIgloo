@@ -230,10 +230,8 @@ const HomeHeader = ({ setFilteredPost }) => {
 
   const goToVideos = () => {
     if (currentUser?.isPremium) {
-      // Navigate to videos if the user is premium
       navigate("/videos");
     } else {
-      // Redirect to PaymentPage for non-premium users
       toast.info("You need to be a premium user to access Vibes.");
       navigate("/payment");
     }

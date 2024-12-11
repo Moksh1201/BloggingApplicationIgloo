@@ -1,27 +1,22 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Initialize Stripe with your secret key
-const Subscription = require('../models/Subscription'); // Subscription model
-const User = require('../models/user'); // User model
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); 
+const Subscription = require('../models/Subscription'); 
+const User = require('../models/user'); 
 
-// Stripe webhook handler
 exports.stripeWebhook = async (req, res) => {
   const sig = req.headers['stripe-signature'];
 
   try {
-    // Construct event to validate the webhook
     const event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
 
-      // Find the subscription using the Stripe session ID
       const subscription = await Subscription.findOne({ stripeSessionId: session.id });
 
       if (subscription) {
-        // Update subscription status to 'active' upon successful payment
         subscription.status = 'active';
         await subscription.save();
 
-        // Update user to indicate premium status
         await User.findByIdAndUpdate(subscription.userId, { isPremium: true });
       }
     }
@@ -33,10 +28,9 @@ exports.stripeWebhook = async (req, res) => {
   }
 };
 
-// Create checkout session for payment
 exports.createCheckoutSession = async (req, res) => {
-  const { plan } = req.body; // Get the selected plan from the request
-  const userId = req.user.id; // Get authenticated user's ID
+  const { plan } = req.body; 
+  const userId = req.user.id; 
 
   try {
     const user = await User.findById(userId);
@@ -44,11 +38,9 @@ exports.createCheckoutSession = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Define the product and price based on the selected plan
     let lineItem = {};
     let priceId = '';
 
-    // Define prices for different plans (example amounts)
     if (plan === 'trial') {
       priceId = process.env.STRIPE_TRIAL_PRICE_ID;
     } else if (plan === 'halfYearly') {
@@ -59,7 +51,6 @@ exports.createCheckoutSession = async (req, res) => {
       return res.status(400).json({ message: 'Invalid plan selected' });
     }
 
-    // Create a Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{
@@ -71,15 +62,13 @@ exports.createCheckoutSession = async (req, res) => {
       cancel_url: `${process.env.HOST_URL}/cancel`,
     });
 
-    // Save the session details into the subscription collection
     const subscription = await Subscription.create({
       userId,
       plan,
       status: 'pending',
-      stripeSessionId: session.id, // Store the session ID
+      stripeSessionId: session.id, 
     });
 
-    // Return the payment URL to the frontend for redirection
     res.json({ paymentUrl: session.url });
   } catch (error) {
     console.error('Error creating checkout session:', error);

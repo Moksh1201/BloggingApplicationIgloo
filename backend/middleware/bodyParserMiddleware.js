@@ -1,5 +1,3 @@
-// middleware/bodyParserMiddleware.js
-
 const bodyParser = require('body-parser');
 
 const parseJson = bodyParser.json();

@@ -86,7 +86,7 @@ const Posts = () => {
         filteredPosts.map((post) => (
           <div key={post.id} className="mb-6">
             <PostsCard post={post} />
-            <hr className="border-gray-300 my-4" /> {/* Added line after each post */}
+            <hr className="border-gray-300 my-4" /> 
           </div>
         ))
       )}

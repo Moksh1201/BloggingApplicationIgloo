@@ -19,7 +19,7 @@ router.get('/', authMiddleware, async (req, res) => {
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const userId = req.params.id;
-    const profile = await profileController.getProfile(userId); // Fetch profile from MongoDB 
+    const profile = await profileController.getProfile(userId); 
     if (profile) {
       res.status(200).json(profile);
     } else {
@@ -33,13 +33,12 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // Route to follow a user
 router.post('/:id/follow', authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id; // ID of the user sending the follow request
-    const followId = req.params.id; // ID of the user to be followed
+    const userId = req.user.id; 
+    const followId = req.params.id; 
 
-    // Call the followUser method from profileController
     const result = await profileController.followUser(userId, followId);
 
-    return res.status(200).json(result); // Return success message
+    return res.status(200).json(result); 
   } catch (error) {
     console.error('Error in follow route:', error);
     res.status(500).json({ message: error.message });
@@ -68,7 +67,6 @@ router.put('/:id', authMiddleware, async (req, res) => {
     const userId = req.params.id;
     const updatedProfile = req.body;
 
-    // Call the updateProfile method from profileController
     const updatedUser = await profileController.updateProfile(userId, updatedProfile);
 
     res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
@@ -83,7 +81,6 @@ router.get('/:currentUserId/follows/:userId', authMiddleware, async (req, res) =
   try {
     const { currentUserId, userId } = req.params;
 
-    // Fetch current user from MongoDB
     const currentUser = await User.findById(currentUserId);
     const isFollowed = currentUser?.following?.includes(userId);
 
@@ -96,8 +93,8 @@ router.get('/:currentUserId/follows/:userId', authMiddleware, async (req, res) =
 // Batch users by IDs
 router.post('/batch-users', authMiddleware, async (req, res) => {
   try {
-    const { userIds } = req.body; // Expecting an array of user IDs
-    const users = await User.find({ _id: { $in: userIds } }); // Fetch users in batch by IDs
+    const { userIds } = req.body; 
+    const users = await User.find({ _id: { $in: userIds } }); 
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -76,7 +76,7 @@ import React, { useState } from 'react';
 import axiosInstance from '../../../axiosInstance';
 
 const PaymentPage = () => {
-  const [selectedPlan, setSelectedPlan] = useState('monthly'); // Default selected plan
+  const [selectedPlan, setSelectedPlan] = useState('monthly'); 
 
   const paymentLinks = {
     monthly: 'https://buy.stripe.com/test_fZe5nh9hc1uh3h6bIM',
@@ -86,7 +86,7 @@ const PaymentPage = () => {
 
   const handlePaymentRedirect = (plan) => {
     if (paymentLinks[plan]) {
-      window.location.href = paymentLinks[plan]; // Redirect to the respective payment URL
+      window.location.href = paymentLinks[plan]; 
     } else {
       console.error('Invalid plan or payment link is missing');
     }
@@ -97,7 +97,6 @@ const PaymentPage = () => {
       <h1 className="text-4xl font-extrabold mb-12 text-gray-800">Choose Your Subscription Plan</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-        {/* Monthly Plan */}
         <div
           onClick={() => setSelectedPlan('monthly')}
           className={`p-8 bg-white rounded-xl shadow-lg cursor-pointer border-2 ${
@@ -105,7 +104,7 @@ const PaymentPage = () => {
           } hover:shadow-xl hover:border-gray-400 transition-transform duration-300`}
         >
           <h2 className="text-2xl font-semibold text-gray-800 mb-6">Monthly</h2>
-          <p className="text-gray-600 mb-6">₹20 per monthly </p>
+          <p className="text-gray-600 mb-6">₹20 per user / monthly </p>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -117,7 +116,7 @@ const PaymentPage = () => {
           </button>
         </div>
 
-        {/* Half-Yearly Plan */}
+
         <div
           onClick={() => setSelectedPlan('halfYearly')}
           className={`p-8 bg-white rounded-xl shadow-lg cursor-pointer border-2 ${
@@ -137,7 +136,6 @@ const PaymentPage = () => {
           </button>
         </div>
 
-        {/* Yearly Plan */}
         <div
           onClick={() => setSelectedPlan('yearly')}
           className={`p-8 bg-white rounded-xl shadow-lg cursor-pointer border-2 ${

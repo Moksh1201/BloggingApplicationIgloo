@@ -1,118 +1,6 @@
-// import React, { useState, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-// import axiosInstance from "../../../axiosInstance"; // Assuming axiosInstance is set up for API calls
-
-// const DeleteUser = () => {
-//   const [users, setUsers] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [currentUser, setCurrentUser] = useState(null);
-//   const navigate = useNavigate();
-
-//   // Fetch current user and all users
-//   useEffect(() => {
-//     const fetchUsers = async () => {
-//       try {
-//         const token = localStorage.getItem('authToken');
-//         if (token) {
-//           axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-//         }
-
-//         const [currentUserResponse, usersResponse] = await Promise.all([
-//           axiosInstance.get('/auth/me'), // Fetch current user
-//           axiosInstance.get('/profile/'), // Fetch all users
-//         ]);
-
-//         setCurrentUser(currentUserResponse.data);
-//         setUsers(usersResponse.data);
-//       } catch (error) {
-//         console.error("Error fetching data:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchUsers();
-//   }, []);
-
-//   // Filter users excluding current user
-//   const filteredUsers = users.filter((user) => user.id !== currentUser?.id);
-
-//   const handleDeleteUser = async (userId) => {
-//     try {
-//       await axiosInstance.delete(`/admin/users/${userId}`);
-//       setUsers(users.filter((user) => user.id !== userId)); // Remove deleted user from state
-//       console.log("User deleted:", userId);
-//     } catch (error) {
-//       console.error("Error deleting user:", error);
-//     }
-//   };
-
-//   // Navigate to profile page
-//   const handleProfileClick = (id) => {
-//     navigate(`/profile/${id}`);
-//   };
-
-//   return (
-//     <div className="delete-user-container" style={{ padding: "2rem", backgroundColor: "#f4f4f4", borderRadius: "8px", boxShadow: "0 4px 8px rgba(0,0,0,0.1)" }}>
-//       <h2 style={{ marginBottom: "1rem", fontSize: "24px", fontWeight: "600" }}>Admin Panel - Delete Users</h2>
-//       {loading ? (
-//         <p>Loading users...</p>
-//       ) : filteredUsers.length > 0 ? (
-//         <div className="users-list" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
-//           {filteredUsers.map((user) => {
-//             const { username, bio, userImg, id } = user;
-//             return (
-//               <div key={id} className="user-card" style={{ backgroundColor: "white", padding: "15px", borderRadius: "8px", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
-//                 <div className="user-header" style={{ marginBottom: "15px" }}>
-//                   <h3 style={{ fontSize: "20px", fontWeight: "600" }}>{username}</h3>
-//                   <p style={{ fontSize: "14px", color: "#555" }}>Email: {user.email}</p>
-//                   <p style={{ fontSize: "14px", color: "#555" }}>Role: {user.isAdmin ? "Admin" : "User"}</p>
-//                 </div>
-//                 <div className="user-actions" style={{ display: "flex", justifyContent: "space-between" }}>
-//                   <button
-//                     onClick={() => handleProfileClick(id)}
-//                     style={{
-//                       backgroundColor: "#4C89F2",
-//                       color: "white",
-//                       border: "none",
-//                       padding: "8px 15px",
-//                       borderRadius: "5px",
-//                       cursor: "pointer",
-//                       fontSize: "14px",
-//                     }}
-//                   >
-//                     View Profile
-//                   </button>
-//                   <button
-//                     onClick={() => handleDeleteUser(id)}
-//                     style={{
-//                       backgroundColor: "#FF4B5C",
-//                       color: "white",
-//                       border: "none",
-//                       padding: "8px 15px",
-//                       borderRadius: "5px",
-//                       cursor: "pointer",
-//                       fontSize: "14px",
-//                     }}
-//                   >
-//                     Delete User
-//                   </button>
-//                 </div>
-//               </div>
-//             );
-//           })}
-//         </div>
-//       ) : (
-//         <p>No users available</p>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default DeleteUser;
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../../axiosInstance"; // Assuming axiosInstance is set up for API calls
+import axiosInstance from "../../../axiosInstance"; 
 
 const DeleteUser = () => {
   const [users, setUsers] = useState([]);
@@ -131,8 +19,8 @@ const DeleteUser = () => {
         }
 
         const [currentUserResponse, usersResponse] = await Promise.all([
-          axiosInstance.get('/auth/me'), // Fetch current user
-          axiosInstance.get('/profile/'), // Fetch all users
+          axiosInstance.get('/auth/me'), 
+          axiosInstance.get('/profile/'), 
         ]);
 
         setCurrentUser(currentUserResponse.data);

@@ -6,19 +6,18 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Multer configuration for file upload
 const videoStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/videos/'); // Destination folder
+    cb(null, 'uploads/videos/'); 
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`); // Unique filename
+    cb(null, `${Date.now()}-${file.originalname}`); 
   },
 });
 
 const upload = multer({
   storage: videoStorage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // Limit file size to 50MB
+  limits: { fileSize: 50 * 1024 * 1024 }, 
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['video/mp4', 'video/mov'];
     if (allowedTypes.includes(file.mimetype)) {
