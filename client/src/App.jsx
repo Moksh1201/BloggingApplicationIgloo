@@ -19,6 +19,7 @@ import Vibes from "./components/Common/ShortVideos/Vibes";
 import UploadVideo from "./components/Common/ShortVideos/uploadvideo";
 import PaymentPage from "./components/Common/premium/PaymentPage";
 import VideoDashBoard from "./components/Common/ShortVideos/VideoDashBoard";
+import VideoPlayerPage from "./components/Common/ShortVideos/VideoPlayerPage";
 
 function App() {
   const { currentUser, loading } = Blog();
