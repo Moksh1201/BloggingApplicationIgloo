@@ -1,8 +1,39 @@
+const mongoose = require('mongoose');
+const Grid = require('gridfs-stream');
+const multer = require('multer');
 const Post = require('../models/Post');
 const Comment = require('../models/comment');
 const Like = require('../models/like');
-const User = require('../models/user'); 
+const User = require('../models/user');
 
+// MongoDB Atlas connection URI
+const mongoURI = process.env.MONGO_Atlas;
+
+// Initialize Mongoose connection
+const conn = mongoose.createConnection(mongoURI);
+
+let gfs;
+
+// Once the connection is open, initialize GridFS
+conn.once('open', () => {
+  console.log('MongoDB connected');
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});
+
+// Multer storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
+
+// Controller functions
 const getPosts = async (req, res, next) => {
   try {
     const posts = await Post.find().populate('userId', 'username');
@@ -16,21 +47,8 @@ const getPost = async (req, res, next) => {
   try {
     const { postId } = req.params;
     const post = await Post.findById(postId).populate('userId', 'username');
-    if (!post) return res.status(404).json({ error: "Post not found" });
+    if (!post) return res.status(404).json({ error: 'Post not found' });
     res.json(post);
-  } catch (err) {
-    next(err);
-  }
-};
-
-const getPostsByUserId = async (req, res, next) => {
-  try {
-    const { userId } = req.params;
-    const posts = await Post.find({ userId }).populate('userId', 'username');
-    if (!posts || posts.length === 0) {
-      return res.status(404).json({ error: 'No posts found for this user' });
-    }
-    res.json(posts);
   } catch (err) {
     next(err);
   }
@@ -38,15 +56,15 @@ const getPostsByUserId = async (req, res, next) => {
 
 const createPost = async (req, res, next) => {
   try {
-    const { userId, content, title, tags,username } = req.body;
+    console.log('Files received:', req.files);
+
+    const { userId, content, title, tags, username } = req.body;
 
     if (!userId || !content || !title || !username) {
       return res.status(400).json({ error: 'userId, content, and title are required' });
     }
 
-    const images = req.files && req.files.length > 0
-      ? req.files.map(file => `/uploads/${file.filename}`)
-      : [];
+    const images = req.files ? req.files.map(file => file.filename) : [];
 
     const newPost = new Post({
       userId,
@@ -60,7 +78,6 @@ const createPost = async (req, res, next) => {
     });
 
     await newPost.save();
-
     res.status(201).json(newPost);
   } catch (err) {
     console.error('Error creating post:', err);
@@ -68,15 +85,17 @@ const createPost = async (req, res, next) => {
   }
 };
 
+
+
 const updatePost = async (req, res, next) => {
   try {
     const { postId } = req.params;
     const { content, title, tags } = req.body;
 
     const post = await Post.findById(postId);
-    if (!post) return res.status(404).json({ error: "Post not found" });
+    if (!post) return res.status(404).json({ error: 'Post not found' });
 
-    const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : post.images;
+    const images = req.files ? req.files.map(file => file.filename) : post.images;
 
     post.content = content || post.content;
     post.title = title || post.title;
@@ -95,13 +114,12 @@ const deletePost = async (req, res, next) => {
   try {
     const { postId } = req.params;
     const result = await Post.deleteOne({ _id: postId });
-    if (result.deletedCount === 0) return res.status(404).json({ error: "Post not found" });
+    if (result.deletedCount === 0) return res.status(404).json({ error: 'Post not found' });
     res.status(204).send();
   } catch (err) {
     next(err);
   }
 };
-
 
 const addComment = async (req, res, next) => {
   try {
@@ -113,7 +131,6 @@ const addComment = async (req, res, next) => {
       return res.status(400).json({ error: 'userId and content are required' });
     }
 
-    // Fetch the user from the database
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -124,21 +141,19 @@ const addComment = async (req, res, next) => {
       userId,
       username: user.username,
       content,
-      parentCommentId: parentCommentId || null, 
-      replies: [], 
+      parentCommentId: parentCommentId || null,
+      replies: [],
       createdAt: new Date(),
     });
 
     if (parentCommentId) {
       const parentComment = await Comment.findById(parentCommentId);
-
       if (!parentComment) {
         return res.status(404).json({ error: 'Parent comment not found' });
       }
 
       await newComment.save();
-
-      parentComment.replies.unshift(newComment._id); 
+      parentComment.replies.unshift(newComment._id);
       await parentComment.save();
     } else {
       await newComment.save();
@@ -150,45 +165,26 @@ const addComment = async (req, res, next) => {
   }
 };
 
-// const getComments = async (req, res, next) => {
-//   try {
-//     const { postId } = req.params;
-
-//     const comments = await Comment.find({ postId, parentCommentId: null })
-//       .populate('userId', 'username')
-//       .populate({
-//         path: 'replies',
-//         options: { sort: { createdAt: -1 } }, // Sort replies by creation date (newest first)
-//         populate: { path: 'userId', select: 'username' }, // Populate user data for nested replies
-//       })
-//       .sort({ createdAt: -1 }); // Sort top-level comments by creation date (newest first)
-
-//     res.json(comments);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
 const getComments = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const currentUserId = req.user?.id; 
+    const currentUserId = req.user?.id;
 
     const comments = await Comment.find({ postId, parentCommentId: null })
-      .populate('userId', 'username') 
+      .populate('userId', 'username')
       .populate({
         path: 'replies',
-        options: { sort: { createdAt: -1 } }, 
-        populate: { path: 'userId', select: 'username' }, 
+        options: { sort: { createdAt: -1 } },
+        populate: { path: 'userId', select: 'username' },
       })
-      .sort({ createdAt: -1 }); 
+      .sort({ createdAt: -1 });
 
     const commentsWithEditFlag = comments.map(comment => ({
       ...comment.toObject(),
       isEditable: comment.userId.toString() === currentUserId,
       replies: comment.replies.map(reply => ({
         ...reply.toObject(),
-        isEditable: reply.userId.toString() === currentUserId, 
+        isEditable: reply.userId.toString() === currentUserId,
       })),
     }));
 
@@ -197,7 +193,6 @@ const getComments = async (req, res, next) => {
     next(err);
   }
 };
-
 
 const updateComment = async (req, res, next) => {
   try {
@@ -228,7 +223,7 @@ const removeComment = async (req, res, next) => {
     const { postId, commentId } = req.params;
     const result = await Comment.deleteOne({ postId, _id: commentId });
 
-    if (result.deletedCount === 0) return res.status(404).json({ error: "Comment not found" });
+    if (result.deletedCount === 0) return res.status(404).json({ error: 'Comment not found' });
 
     await Comment.deleteMany({ parentCommentId: commentId });
 
@@ -237,7 +232,6 @@ const removeComment = async (req, res, next) => {
     next(err);
   }
 };
-
 
 const likePost = async (req, res, next) => {
   try {
@@ -282,10 +276,10 @@ const unlikePost = async (req, res, next) => {
 const getLikesForPost = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const { userId } = req.query; 
+    const { userId } = req.query;
 
     const likes = await Like.find({ postId });
-    const hasLiked = userId ? likes.some((like) => like.userId.toString() === userId) : false;
+    const hasLiked = userId ? likes.some(like => like.userId.toString() === userId) : false;
 
     res.status(200).json({
       totalLikes: likes.length,
@@ -296,7 +290,21 @@ const getLikesForPost = async (req, res, next) => {
   }
 };
 
+const getPostsByUserId = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const posts = await Post.find({ userId }).populate('userId', 'username');
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ error: 'No posts found for this user' });
+    }
+    res.json(posts);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
+  upload,
   getPosts,
   getPost,
   createPost,
