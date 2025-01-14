@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
-const Grid = require('gridfs-stream');
+const { createModel } = require('mongoose-gridfs');
 const multer = require('multer');
+const { GridFSBucket } = require('mongodb');
 const Post = require('../models/Post');
 const Comment = require('../models/comment');
 const Like = require('../models/like');
@@ -10,28 +11,20 @@ const User = require('../models/user');
 const mongoURI = process.env.MONGO_Atlas;
 
 // Initialize Mongoose connection
-const conn = mongoose.createConnection(mongoURI);
+const connection = mongoose.createConnection(mongoURI);
 
+// Create GridFS model
 let gfs;
-
-// Once the connection is open, initialize GridFS
-conn.once('open', () => {
-  console.log('MongoDB connected');
-  gfs = Grid(conn.db, mongoose.mongo);
-  gfs.collection('uploads');
+connection.once('open', () => {
+  gfs = new GridFSBucket(connection.db, {
+    bucketName: 'uploads',
+  });
 });
 
 // Multer storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
-
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
+
 
 // Controller functions
 const getPosts = async (req, res, next) => {
@@ -56,16 +49,37 @@ const getPost = async (req, res, next) => {
 
 const createPost = async (req, res, next) => {
   try {
-    console.log('Files received:', req.files);
-
     const { userId, content, title, tags, username } = req.body;
 
     if (!userId || !content || !title || !username) {
       return res.status(400).json({ error: 'userId, content, and title are required' });
     }
 
-    const images = req.files ? req.files.map(file => file.filename) : [];
+    const files = req.files || [];
 
+    // Use GridFSBucket to handle file uploads
+    const bucket = new mongoose.mongo.GridFSBucket(connection.db, {
+      bucketName: 'uploads',
+    });
+
+    const filePromises = files.map((file) => {
+      return new Promise((resolve, reject) => {
+        const uploadStream = bucket.openUploadStream(file.originalname);
+        uploadStream.end(file.buffer);
+
+        uploadStream.on('finish', () => {
+          resolve(uploadStream.id.toString());
+        });
+
+        uploadStream.on('error', (err) => {
+          reject(err);
+        });
+      });
+    });
+
+    const images = await Promise.all(filePromises);
+
+    // Create a new post
     const newPost = new Post({
       userId,
       username,
@@ -85,6 +99,27 @@ const createPost = async (req, res, next) => {
   }
 };
 
+const getImage = async (req, res) => {
+  try {
+    const { filename } = req.params;
+
+    // Convert the filename to ObjectId and query GridFS
+    const objectId = new mongoose.Types.ObjectId(filename);
+
+    // Check if the file exists
+    gfs.find({ _id: objectId }).toArray((err, files) => {
+      if (!files || files.length === 0) {
+        return res.status(404).json({ error: 'Image not found' });
+      }
+
+      // Stream the image to the response
+      gfs.openDownloadStream(objectId).pipe(res);
+    });
+  } catch (err) {
+    console.error('Error retrieving image:', err);
+    res.status(500).json({ error: 'Failed to retrieve image' });
+  }
+};
 
 
 const updatePost = async (req, res, next) => {
@@ -305,6 +340,7 @@ const getPostsByUserId = async (req, res, next) => {
 
 module.exports = {
   upload,
+  getImage,
   getPosts,
   getPost,
   createPost,
